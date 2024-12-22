@@ -20,18 +20,15 @@ public class PostController {
 
     @ApiIgnore
     @RequestMapping(value="/post")
-    public void redirec(HttpServletResponse response) throws IOException, IOException {
+    public void redirec(HttpServletResponse response) throws IOException {
         response.sendRedirect("/swagger-ui.html");
     }
-
-    @GetMapping("/allPosts")
-    public List<Post> getAllPosts() {
-        return repo.findAll();
+    @PostMapping("/posts")
+    public Post createPost(@RequestBody Post post) {
+        return repo.save(post);
     }
-
-
     @GetMapping("/allPosts")
-    public Page<Post> getAllPosts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public Page<Post> getAllPosts(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return repo.findAll(pageable);
     }

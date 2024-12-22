@@ -1,9 +1,12 @@
 package com.chamara.The.Home.Services.Booking.System.model;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Arrays;
+import java.util.Date;
 
 @Document(collection = "Post")
 public class Post {
@@ -17,6 +20,12 @@ public class Post {
     private String whatappLink;
     private String facebookLink;
     private String websiteLink;
+
+    @CreatedDate
+    private Date createdAt;
+
+    @LastModifiedDate
+    private Date updatedAt;
 
     // Getters and setters for all fields
 
@@ -92,6 +101,22 @@ public class Post {
         this.websiteLink = websiteLink;
     }
 
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     @Override
     public String toString() {
         return "Post{" +
@@ -104,6 +129,8 @@ public class Post {
                 ", whatappLink='" + whatappLink + '\'' +
                 ", facebookLink='" + facebookLink + '\'' +
                 ", websiteLink='" + websiteLink + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
                 '}';
     }
 }
