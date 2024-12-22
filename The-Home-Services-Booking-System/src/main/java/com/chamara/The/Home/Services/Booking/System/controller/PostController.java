@@ -1,6 +1,7 @@
-package com.chamara.The.Home.Services.Booking.System;
+package com.chamara.The.Home.Services.Booking.System.controller;
 
 
+import com.chamara.The.Home.Services.Booking.System.model.Post;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +20,7 @@ public void redirec(HttpServletResponse response) throws IOException {
 
 }
 
-public List<>
+public List<Post>
 
 
 
