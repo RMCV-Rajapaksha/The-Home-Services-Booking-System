@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -46,6 +47,10 @@ public class PostController {
             return ResponseEntity.status(404).body("Post not found.");
         }
     }
+    @GetMapping("/posts/search")
+    public List<Post> searchPosts(@RequestParam String query, @RequestParam(defaultValue = "") String location) {
+        return repo.findByTitleContainingOrDescriptionContainingOrLocationContaining(query, query, location);
+    }
     @PutMapping("/posts/{id}")
     public ResponseEntity<String> updatePost(@PathVariable String id, @RequestBody Post updatedPost) {
         Optional<Post> existingPost = repo.findById(id);
@@ -66,4 +71,6 @@ public class PostController {
             return ResponseEntity.status(404).body("Post not found.");
         }
     }
+
+
 }
