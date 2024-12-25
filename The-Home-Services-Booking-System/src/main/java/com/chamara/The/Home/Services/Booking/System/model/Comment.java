@@ -1,2 +1,5 @@
-package com.chamara.The.Home.Services.Booking.System.model;public class Comment {
+package com.chamara.The.Home.Services.Booking.System.model;
+
+public class Comment {
+    
 }
