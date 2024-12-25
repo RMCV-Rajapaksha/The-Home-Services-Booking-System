@@ -20,6 +20,33 @@ public class Post {
     private String whatappLink;
     private String facebookLink;
     private String websiteLink;
+    private String[] images;
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "id='" + id + '\'' +
+                ", userEmail='" + userEmail + '\'' +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", contactNo=" + Arrays.toString(contactNo) +
+                ", location='" + location + '\'' +
+                ", whatappLink='" + whatappLink + '\'' +
+                ", facebookLink='" + facebookLink + '\'' +
+                ", websiteLink='" + websiteLink + '\'' +
+                ", images=" + Arrays.toString(images) +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
+
+    public String[] getImages() {
+        return images;
+    }
+
+    public void setImages(String[] images) {
+        this.images = images;
+    }
 
     @CreatedDate
     private Date createdAt;
@@ -117,20 +144,4 @@ public class Post {
         this.updatedAt = updatedAt;
     }
 
-    @Override
-    public String toString() {
-        return "Post{" +
-                "id='" + id + '\'' +
-                ", userEmail='" + userEmail + '\'' +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", contactNo=" + Arrays.toString(contactNo) +
-                ", location='" + location + '\'' +
-                ", whatappLink='" + whatappLink + '\'' +
-                ", facebookLink='" + facebookLink + '\'' +
-                ", websiteLink='" + websiteLink + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
-    }
 }
