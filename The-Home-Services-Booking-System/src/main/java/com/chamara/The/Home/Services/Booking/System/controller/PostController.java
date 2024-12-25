@@ -27,8 +27,9 @@ public class PostController {
     }
 
     @PostMapping("/posts")
-    public Post createPost(@RequestBody Post post) {
-        return repo.save(post);
+    public ResponseEntity<String> createPost(@RequestBody Post post) {
+        repo.save(post);
+        return ResponseEntity.ok("Post created successfully.");
     }
 
     @GetMapping("/allPosts")
@@ -50,6 +51,16 @@ public class PostController {
     @GetMapping("/posts/search")
     public List<Post> searchPosts(@RequestParam String query, @RequestParam(defaultValue = "") String location) {
         return repo.findByTitleContainingOrDescriptionContainingOrLocationContaining(query, query, location);
+    }
+
+    @GetMapping("/posts/user/{email}")
+    public ResponseEntity<List<Post>> getPostsByUserEmail(@PathVariable String email) {
+        List<Post> posts = repo.findByUserEmail(email);
+        if (posts.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(posts);
+        }
     }
     @PutMapping("/posts/{id}")
     public ResponseEntity<String> updatePost(@PathVariable String id, @RequestBody Post updatedPost) {

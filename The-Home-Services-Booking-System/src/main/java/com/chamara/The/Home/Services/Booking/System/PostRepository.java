@@ -8,4 +8,6 @@ import java.util.List;
 public interface PostRepository extends MongoRepository<Post, String>{
 
     List<Post> findByTitleContainingOrDescriptionContainingOrLocationContaining(String query, String query1, String location);
+
+    List<Post> findByUserEmail(String email);
 }

@@ -26,10 +26,10 @@ public class CommentController {
     }
 
     @PostMapping("/comments")
-    public Comment createComment(@RequestBody Comment comment) {
-        return repo.save(comment);
+    public ResponseEntity<String> createComment(@RequestBody Comment comment) {
+        repo.save(comment);
+        return ResponseEntity.ok("Comment created successfully.");
     }
-
     @GetMapping("/comments")
     public List<Comment> getAllComments() {
         return repo.findAll();
@@ -41,6 +41,15 @@ public class CommentController {
             return ResponseEntity.ok("Comment deleted successfully.");
         } else {
             return ResponseEntity.status(404).body("Comment not found.");
+        }
+    }
+    @GetMapping("/comments/post/{postId}")
+    public ResponseEntity<List<Comment>> getCommentsByPostId(@PathVariable String postId) {
+        List<Comment> comments = repo.findByPostId(postId);
+        if (comments.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(comments);
         }
     }
 }
