@@ -16,11 +16,9 @@ public class Post {
     private String title;
     private String description;
     private String[] contactNo;
+    private String[] category;
     private String location;
     private String whatappLink;
-    private String facebookLink;
-    private String websiteLink;
-    private String[] images;
 
     @Override
     public String toString() {
@@ -30,6 +28,7 @@ public class Post {
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", contactNo=" + Arrays.toString(contactNo) +
+                ", category=" + Arrays.toString(category) +
                 ", location='" + location + '\'' +
                 ", whatappLink='" + whatappLink + '\'' +
                 ", facebookLink='" + facebookLink + '\'' +
@@ -39,6 +38,18 @@ public class Post {
                 ", updatedAt=" + updatedAt +
                 '}';
     }
+
+    public String[] getCategory() {
+        return category;
+    }
+
+    public void setCategory(String[] category) {
+        this.category = category;
+    }
+
+    private String facebookLink;
+    private String websiteLink;
+    private String[] images;
 
     public String[] getImages() {
         return images;
