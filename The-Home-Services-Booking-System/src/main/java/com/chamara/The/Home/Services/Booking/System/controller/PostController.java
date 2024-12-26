@@ -35,11 +35,15 @@ public class PostController {
     }
 
     @GetMapping
-    public Page<Post> getAllPosts(
+    public ResponseEntity<Page<Post>> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return repo.findAll(pageable);
+        Page<Post> posts = repo.findAll(pageable);
+        if (posts.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(posts);
     }
 
     @DeleteMapping("/{id}")
@@ -47,27 +51,30 @@ public class PostController {
         Optional<Post> existingPost = repo.findById(id);
         if (existingPost.isPresent()) {
             repo.deleteById(id);
-            return ResponseEntity.ok("Post deleted successfully.");
+            return ResponseEntity.ok("Post with ID " + id + " deleted successfully.");
         } else {
-            return ResponseEntity.status(404).body("Post not found.");
+            return ResponseEntity.status(404).body("Post with ID " + id + " not found.");
         }
     }
 
     @GetMapping("/search")
-    public List<Post> searchPosts(
+    public ResponseEntity<List<Post>> searchPosts(
             @RequestParam String query,
             @RequestParam(defaultValue = "") String location) {
-        return repo.findByTitleContainingOrDescriptionContainingOrLocationContaining(query, query, location);
+        List<Post> posts = repo.findByTitleContainingOrDescriptionContainingOrLocationContaining(query, query, location);
+        if (posts.isEmpty()) {
+            return ResponseEntity.status(404).body(List.of()); // Empty list with 404
+        }
+        return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/user/{email}")
     public ResponseEntity<List<Post>> getPostsByUserEmail(@PathVariable String email) {
         List<Post> posts = repo.findByUserEmail(email);
         if (posts.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(posts);
+            return ResponseEntity.status(404).body(List.of());
         }
+        return ResponseEntity.ok(posts);
     }
 
     @PutMapping("/{id}")
@@ -87,9 +94,9 @@ public class PostController {
             post.setWebsiteLink(updatedPost.getWebsiteLink());
 
             repo.save(post);
-            return ResponseEntity.ok("Post updated successfully.");
+            return ResponseEntity.ok("Post with ID  updated successfully.");
         } else {
-            return ResponseEntity.status(404).body("Post not found.");
+            return ResponseEntity.status(404).body("Post with ID not found.");
         }
     }
 }
