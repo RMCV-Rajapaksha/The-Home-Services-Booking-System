@@ -76,7 +76,6 @@ public class PostController {
         }
         return ResponseEntity.ok(posts);
     }
-
     @PutMapping("/{id}")
     public ResponseEntity<String> updatePost(
             @PathVariable String id,
@@ -84,19 +83,24 @@ public class PostController {
         Optional<Post> existingPost = repo.findById(id);
         if (existingPost.isPresent()) {
             Post post = existingPost.get();
-            post.setUserEmail(updatedPost.getUserEmail());
-            post.setTitle(updatedPost.getTitle());
-            post.setDescription(updatedPost.getDescription());
-            post.setContactNo(updatedPost.getContactNo());
-            post.setLocation(updatedPost.getLocation());
-            post.setWhatappLink(updatedPost.getWhatappLink());
-            post.setFacebookLink(updatedPost.getFacebookLink());
-            post.setWebsiteLink(updatedPost.getWebsiteLink());
+
+            // Update only fields that are non-null in the incoming request
+            if (updatedPost.getUserEmail() != null) post.setUserEmail(updatedPost.getUserEmail());
+            if (updatedPost.getTitle() != null) post.setTitle(updatedPost.getTitle());
+            if (updatedPost.getDescription() != null) post.setDescription(updatedPost.getDescription());
+            if (updatedPost.getContactNo() != null) post.setContactNo(updatedPost.getContactNo());
+            if (updatedPost.getCategory() != null) post.setCategory(updatedPost.getCategory());
+            if (updatedPost.getLocation() != null) post.setLocation(updatedPost.getLocation());
+            if (updatedPost.getWhatappLink() != null) post.setWhatappLink(updatedPost.getWhatappLink());
+            if (updatedPost.getFacebookLink() != null) post.setFacebookLink(updatedPost.getFacebookLink());
+            if (updatedPost.getWebsiteLink() != null) post.setWebsiteLink(updatedPost.getWebsiteLink());
+            if (updatedPost.getImages() != null) post.setImages(updatedPost.getImages());
 
             repo.save(post);
-            return ResponseEntity.ok("Post with ID  updated successfully.");
+            return ResponseEntity.ok("Post with ID " + id + " updated successfully.");
         } else {
-            return ResponseEntity.status(404).body("Post with ID not found.");
+            return ResponseEntity.status(404).body("Post with ID " + id + " not found.");
         }
     }
+
 }
