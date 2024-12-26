@@ -1,6 +1,5 @@
 package com.chamara.The.Home.Services.Booking.System.controller;
 
-
 import com.chamara.The.Home.Services.Booking.System.CommentRepository;
 import com.chamara.The.Home.Services.Booking.System.model.Comment;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,7 +11,9 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/comments")
 public class CommentController {
+
     private final CommentRepository repo;
 
     public CommentController(CommentRepository repo) {
@@ -20,21 +21,23 @@ public class CommentController {
     }
 
     @ApiIgnore
-    @RequestMapping(value = "/comment")
+    @RequestMapping("/")
     public void redirect(HttpServletResponse response) throws IOException {
         response.sendRedirect("/swagger-ui.html");
     }
 
-    @PostMapping("/comments")
+    @PostMapping
     public ResponseEntity<String> createComment(@RequestBody Comment comment) {
         repo.save(comment);
         return ResponseEntity.ok("Comment created successfully.");
     }
-    @GetMapping("/comments")
+
+    @GetMapping
     public List<Comment> getAllComments() {
         return repo.findAll();
     }
-    @DeleteMapping("/comments/{id}")
+
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteComment(@PathVariable String id) {
         if (repo.existsById(id)) {
             repo.deleteById(id);
@@ -43,7 +46,8 @@ public class CommentController {
             return ResponseEntity.status(404).body("Comment not found.");
         }
     }
-    @GetMapping("/comments/post/{postId}")
+
+    @GetMapping("/post/{postId}")
     public ResponseEntity<List<Comment>> getCommentsByPostId(@PathVariable String postId) {
         List<Comment> comments = repo.findByPostId(postId);
         if (comments.isEmpty()) {

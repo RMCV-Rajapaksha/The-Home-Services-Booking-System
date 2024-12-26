@@ -16,29 +16,33 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/api/posts")
 public class PostController {
+
     @Autowired
     private PostRepository repo;
 
     @ApiIgnore
-    @RequestMapping(value = "/post")
+    @RequestMapping(value = "/")
     public void redirect(HttpServletResponse response) throws IOException {
         response.sendRedirect("/swagger-ui.html");
     }
 
-    @PostMapping("/posts")
+    @PostMapping
     public ResponseEntity<String> createPost(@RequestBody Post post) {
         repo.save(post);
         return ResponseEntity.ok("Post created successfully.");
     }
 
-    @GetMapping("/allPosts")
-    public Page<Post> getAllPosts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    @GetMapping
+    public Page<Post> getAllPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return repo.findAll(pageable);
     }
 
-    @DeleteMapping("/posts/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePost(@PathVariable String id) {
         Optional<Post> existingPost = repo.findById(id);
         if (existingPost.isPresent()) {
@@ -48,12 +52,15 @@ public class PostController {
             return ResponseEntity.status(404).body("Post not found.");
         }
     }
-    @GetMapping("/posts/search")
-    public List<Post> searchPosts(@RequestParam String query, @RequestParam(defaultValue = "") String location) {
+
+    @GetMapping("/search")
+    public List<Post> searchPosts(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "") String location) {
         return repo.findByTitleContainingOrDescriptionContainingOrLocationContaining(query, query, location);
     }
 
-    @GetMapping("/posts/user/{email}")
+    @GetMapping("/user/{email}")
     public ResponseEntity<List<Post>> getPostsByUserEmail(@PathVariable String email) {
         List<Post> posts = repo.findByUserEmail(email);
         if (posts.isEmpty()) {
@@ -62,8 +69,11 @@ public class PostController {
             return ResponseEntity.ok(posts);
         }
     }
-    @PutMapping("/posts/{id}")
-    public ResponseEntity<String> updatePost(@PathVariable String id, @RequestBody Post updatedPost) {
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updatePost(
+            @PathVariable String id,
+            @RequestBody Post updatedPost) {
         Optional<Post> existingPost = repo.findById(id);
         if (existingPost.isPresent()) {
             Post post = existingPost.get();
@@ -82,6 +92,4 @@ public class PostController {
             return ResponseEntity.status(404).body("Post not found.");
         }
     }
-
-
 }
