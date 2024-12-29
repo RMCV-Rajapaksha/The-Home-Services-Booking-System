@@ -26,7 +26,9 @@ public class UserService {
         user.setPassword(encoder.encode(user.getPassword()));
         return repo.save(user);
     }
-
+    public boolean userExists(String username) {
+        return repo.findByUsername(username) != null;
+    }
 
     public String verify(User user) {
         Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
