@@ -1,6 +1,6 @@
 package com.chamara.The.Home.Services.Booking.System.controller;
 
-import com.chamara.The.Home.Services.Booking.System.CommentRepository;
+import com.chamara.The.Home.Services.Booking.System.repo.CommentRepository;
 import com.chamara.The.Home.Services.Booking.System.model.Comment;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/comments")
 public class CommentController {
 

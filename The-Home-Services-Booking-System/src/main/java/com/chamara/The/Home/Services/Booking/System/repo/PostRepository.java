@@ -1,4 +1,4 @@
-package com.chamara.The.Home.Services.Booking.System;
+package com.chamara.The.Home.Services.Booking.System.repo;
 
 import com.chamara.The.Home.Services.Booking.System.model.Post;
 import org.springframework.data.mongodb.repository.MongoRepository;

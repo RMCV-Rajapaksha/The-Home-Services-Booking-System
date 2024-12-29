@@ -1,6 +1,6 @@
 package com.chamara.The.Home.Services.Booking.System.controller;
 
-import com.chamara.The.Home.Services.Booking.System.PostRepository;
+import com.chamara.The.Home.Services.Booking.System.repo.PostRepository;
 import com.chamara.The.Home.Services.Booking.System.model.Post;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/posts")
 public class PostController {
 
