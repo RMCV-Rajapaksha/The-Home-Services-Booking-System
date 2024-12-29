@@ -17,11 +17,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @CrossOrigin
 
 public class UserController {
-
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private UserService service;
 
@@ -50,5 +53,21 @@ public class UserController {
     }
 
 
+    @PutMapping("/user/{id}")
+    public ResponseEntity<String> editUser(@PathVariable String id, @RequestBody User updatedUser) {
+        Optional<User> existingUserOptional = userRepository.findById(id);
+        if (existingUserOptional.isPresent()) {
+            User existingUser = existingUserOptional.get();
+
+            // Update only fields that are non-null in the incoming request
+            if (updatedUser.getUsername() != null) existingUser.setUsername(updatedUser.getUsername());
+            if (updatedUser.getPassword() != null) existingUser.setPassword(updatedUser.getPassword());
+
+            userRepository.save(existingUser);
+            return ResponseEntity.ok("User with ID " + id + " updated successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User with ID " + id + " not found.");
+        }
+    }
 
 }
