@@ -1,30 +1,20 @@
 package com.chamara.The.Home.Services.Booking.System.model;
 
 import nonapi.io.github.classgraph.json.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "  ")
+@Document(collection = "users")
 public class User {
     @Id
     private String id;
 
-
-    private String password;
+    @Indexed(unique = true)
     private String username;
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id='" + id + '\'' +
+    private String password;
 
-                ", password='" + password + '\'' +
-                ", username='" + username + '\'' +
-                '}';
-    }
-
-    public User() {
-    }
-
+    // Getters and setters
     public String getId() {
         return id;
     }
@@ -33,7 +23,13 @@ public class User {
         this.id = id;
     }
 
+    public String getUsername() {
+        return username;
+    }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public String getPassword() {
         return password;
@@ -41,13 +37,5 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 }

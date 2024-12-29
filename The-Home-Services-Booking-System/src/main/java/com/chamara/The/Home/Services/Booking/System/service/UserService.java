@@ -3,6 +3,7 @@ package com.chamara.The.Home.Services.Booking.System.service;
 import com.chamara.The.Home.Services.Booking.System.model.User;
 import com.chamara.The.Home.Services.Booking.System.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,8 +27,14 @@ public class UserService {
         user.setPassword(encoder.encode(user.getPassword()));
         return repo.save(user);
     }
+
     public boolean userExists(String username) {
-        return repo.findByUsername(username) != null;
+        try {
+            return repo.findByUsername(username) != null;
+        } catch (IncorrectResultSizeDataAccessException e) {
+            // Handle the case where multiple users with the same username exist
+            return true;
+        }
     }
 
     public String verify(User user) {
