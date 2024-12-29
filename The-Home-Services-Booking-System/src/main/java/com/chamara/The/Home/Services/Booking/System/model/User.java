@@ -8,7 +8,7 @@ public class User {
     @Id
     private String id;
 
-    private String email;
+
     private String password;
     private String username;
 
@@ -16,7 +16,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "id='" + id + '\'' +
-                ", email='" + email + '\'' +
+
                 ", password='" + password + '\'' +
                 ", username='" + username + '\'' +
                 '}';
@@ -33,13 +33,7 @@ public class User {
         this.id = id;
     }
 
-    public String getEmail() {
-        return email;
-    }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
     public String getPassword() {
         return password;
