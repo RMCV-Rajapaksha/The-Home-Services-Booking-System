@@ -1,6 +1,4 @@
-
 package com.chamara.The.Home.Services.Booking.System.controller;
-
 
 import com.chamara.The.Home.Services.Booking.System.model.Comment;
 import com.chamara.The.Home.Services.Booking.System.model.LoginResponse;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin
-
 public class UserController {
 
     @Autowired
@@ -30,15 +27,17 @@ public class UserController {
 
     @Autowired
     private MyUserDetailsService userDetailsService;
-    @PostMapping("/register")
+
+    @PostMapping(value = "/register", produces = "application/json")
     public ResponseEntity<String> register(@RequestBody User user) {
         if (service.userExists(user.getUsername())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username is already taken.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("{\"message\": \"Username is already taken.\"}");
         }
         service.register(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully.");
+        return ResponseEntity.status(HttpStatus.CREATED).body("{\"message\": \"User registered successfully.\"}");
     }
-    @PostMapping("/login")
+
+    @PostMapping(value = "/login", produces = "application/json")
     public ResponseEntity<LoginResponse> login(@RequestBody User user) {
         String token = service.verify(user);
         if ("fail".equals(token)) {
@@ -48,7 +47,4 @@ public class UserController {
         UserPrincipal userPrincipal = (UserPrincipal) userDetails;
         return ResponseEntity.ok(new LoginResponse(token, userPrincipal.getUser()));
     }
-
-
-
 }
