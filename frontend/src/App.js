@@ -4,6 +4,8 @@ import PublicLayout from "./components/layout/PublicLayout";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
+import NotFound from "./pages/NotFound";
+import Service from "./pages/Service";
 
 function App() {
   return (
@@ -12,7 +14,9 @@ function App() {
         <Route element={<PublicLayout />}>
           <Route path="signup" element={<Signup />} />
           <Route path="login" element={<Login />} />
+          <Route path="service" element={<Service />} />
           <Route path="/" element={<Home />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </>

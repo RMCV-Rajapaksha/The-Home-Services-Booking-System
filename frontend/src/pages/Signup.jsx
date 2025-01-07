@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import PIC from '../assets/images/pic_01.jpg';
+import GOOGLE from '../assets/images/google (2).png';
+import APPLE from '../assets/images/apple-logo.png';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -25,12 +27,12 @@ const Signup = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="flex w-full max-w-6xl overflow-hidden bg-white shadow-xl rounded-3xl">
+      <div className="flex flex-col-reverse w-full max-w-6xl overflow-hidden bg-white shadow-xl md:flex-row rounded-3xl">
         <motion.div 
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="w-1/2 p-12"
+          className="w-full p-12 md:w-1/2"
         >
           <h1 className="mb-8 text-3xl font-bold text-gray-800">Get Started Now</h1>
           
@@ -105,7 +107,7 @@ const Signup = () => {
                 type="button"
                 className="flex items-center justify-center flex-1 gap-2 px-4 py-2 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50"
               >
-                <img src="/api/placeholder/20/20" alt="Google" className="w-5 h-5" />
+                <img src={GOOGLE} alt="Google" className="w-5 h-5" />
                 Sign in with Google
               </motion.button>
 
@@ -115,7 +117,7 @@ const Signup = () => {
                 type="button"
                 className="flex items-center justify-center flex-1 gap-2 px-4 py-2 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50"
               >
-                <img src="/api/placeholder/20/20" alt="Apple" className="w-5 h-5" />
+                <img src={APPLE} alt="Apple" className="w-5 h-5" />
                 Sign in with Apple
               </motion.button>
             </div>
@@ -133,7 +135,7 @@ const Signup = () => {
           initial={{ x: 50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="w-1/2"
+          className="w-full md:w-1/2"
         >
           <img
             src={PIC}

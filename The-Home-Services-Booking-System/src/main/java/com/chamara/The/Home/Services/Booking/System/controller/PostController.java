@@ -5,6 +5,7 @@ import com.chamara.The.Home.Services.Booking.System.model.Post;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -34,19 +35,27 @@ public class PostController {
         repo.save(post);
         return ResponseEntity.ok("Post created successfully.");
     }
-
     @GetMapping
     public ResponseEntity<Page<Post>> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String query,
+            @RequestParam(defaultValue = "") String location) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Post> posts = repo.findAll(pageable);
+        Page<Post> posts;
+
+        if (query != null && !query.isEmpty()) {
+            List<Post> searchResults = repo.findByTitleContainingOrDescriptionContainingOrLocationContaining(query, query, location);
+            posts = new PageImpl<>(searchResults, pageable, searchResults.size());
+        } else {
+            posts = repo.findAll(pageable);
+        }
+
         if (posts.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(posts);
     }
-
     @DeleteMapping(value = "/{id}", produces = "application/json")
     public ResponseEntity<String> deletePost(@PathVariable String id) {
         Optional<Post> existingPost = repo.findById(id);
@@ -58,16 +67,7 @@ public class PostController {
         }
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<Post>> searchPosts(
-            @RequestParam String query,
-            @RequestParam(defaultValue = "") String location) {
-        List<Post> posts = repo.findByTitleContainingOrDescriptionContainingOrLocationContaining(query, query, location);
-        if (posts.isEmpty()) {
-            return ResponseEntity.status(404).body(List.of()); // Empty list with 404
-        }
-        return ResponseEntity.ok(posts);
-    }
+
 
     @GetMapping("/user/{email}")
     public ResponseEntity<List<Post>> getPostsByUserEmail(@PathVariable String email) {
