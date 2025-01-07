@@ -1,3 +1,4 @@
+package com.chamara.The.Home.Services.Booking.System.controller;
 
 import com.chamara.The.Home.Services.Booking.System.repo.CommentRepository;
 import com.chamara.The.Home.Services.Booking.System.model.Comment;
