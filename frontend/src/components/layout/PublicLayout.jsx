@@ -4,11 +4,13 @@ import Footer from "../Footer";
 
 const PublicLayout = () => {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <PublicNavbar />
-      <Outlet />
-      <Footer/>
-    </>
+ 
+        <Outlet />
+ 
+      <Footer />
+    </div>
   );
 };
 

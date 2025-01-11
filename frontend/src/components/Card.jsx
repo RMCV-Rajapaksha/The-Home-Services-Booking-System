@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Share2, Heart } from 'lucide-react';
-import LOGO from '../assets/images/pic_01.jpg';
+
 
 const EventCard = ({ event, index }) => (
     <motion.div
@@ -13,7 +13,7 @@ const EventCard = ({ event, index }) => (
     >
       <div className="relative">
         <img 
-          src={LOGO}
+          src={event.images[0]}
           alt={event.title}
           className="object-cover w-full h-48"
         />
