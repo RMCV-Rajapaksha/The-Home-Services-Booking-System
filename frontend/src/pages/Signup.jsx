@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import PIC from '../assets/images/pic_01.jpg';
+import PIC_01 from '../assets/images/pic_01.jpg';
 import GOOGLE from '../assets/images/google (2).png';
 import APPLE from '../assets/images/apple-logo.png';
+import axiosInstance from '../utils/axiosInstance';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    username: '',
     password: '',
+    confirmPassword: '',
     agreeToTerms: false
   });
 
@@ -20,9 +23,25 @@ const Signup = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    try {
+      const response = await axiosInstance.post('/register', {
+        username: formData.username,
+        password: formData.password
+      });
+      toast.success(response.data.message);
+    } catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("An error occurred. Please try again.");
+      }
+    }
   };
 
   return (
@@ -34,36 +53,30 @@ const Signup = () => {
           transition={{ duration: 0.5 }}
           className="w-full p-12 md:w-1/2"
         >
-          <h1 className="mb-8 text-3xl font-bold text-gray-800">Get Started Now</h1>
-          
+          <motion.div
+            initial={{ y:0, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <h1 className="mb-2 text-3xl font-bold text-gray-800">Create an account</h1>
+            <p className="mb-8 text-gray-600">Enter your details to sign up</p>
+          </motion.div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Name</label>
+              <label className="block mb-1 text-sm font-medium text-gray-700">Username</label>
               <motion.input
                 whileFocus={{ scale: 1.01 }}
                 type="text"
-                name="name"
-                value={formData.name}
+                name="username"
+                value={formData.username}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your name"
+                placeholder="Enter your username"
               />
             </div>
 
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Email address</label>
-              <motion.input
-                whileFocus={{ scale: 1.01 }}
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your email"
-              />
-            </div>
-
-            <div>
+            <div className="relative">
               <label className="block mb-1 text-sm font-medium text-gray-700">Password</label>
               <motion.input
                 whileFocus={{ scale: 1.01 }}
@@ -76,6 +89,19 @@ const Signup = () => {
               />
             </div>
 
+            <div className="relative">
+              <label className="block mb-1 text-sm font-medium text-gray-700">Confirm Password</label>
+              <motion.input
+                whileFocus={{ scale: 1.01 }}
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Confirm your password"
+              />
+            </div>
+
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -85,7 +111,7 @@ const Signup = () => {
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
               <label className="block ml-2 text-sm text-gray-700">
-                I agree to the terms & policy
+                Agree to terms and conditions
               </label>
             </div>
 
@@ -95,7 +121,7 @@ const Signup = () => {
               type="submit"
               className="w-full py-3 font-medium text-white transition-colors bg-gray-900 rounded-lg hover:bg-gray-800"
             >
-              Signup
+              Sign Up
             </motion.button>
 
             <div className="text-sm text-center text-gray-500">Or</div>
@@ -108,7 +134,7 @@ const Signup = () => {
                 className="flex items-center justify-center flex-1 gap-2 px-4 py-2 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 <img src={GOOGLE} alt="Google" className="w-5 h-5" />
-                Sign in with Google
+                Sign up with Google
               </motion.button>
 
               <motion.button
@@ -118,14 +144,14 @@ const Signup = () => {
                 className="flex items-center justify-center flex-1 gap-2 px-4 py-2 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 <img src={APPLE} alt="Apple" className="w-5 h-5" />
-                Sign in with Apple
+                Sign up with Apple
               </motion.button>
             </div>
 
             <p className="text-sm text-center text-gray-600">
-              Have an account?{' '}
+              Already have an account?{' '}
               <a href="#" className="font-medium text-blue-600 hover:text-blue-700">
-                Sign In
+                Login
               </a>
             </p>
           </form>
@@ -138,12 +164,13 @@ const Signup = () => {
           className="w-full md:w-1/2"
         >
           <img
-            src={PIC}
-            alt="People working together"
+            src={PIC_01}
+            alt="Woman working"
             className="object-cover w-full h-full"
           />
         </motion.div>
       </div>
+      <ToastContainer />
     </div>
   );
 };
