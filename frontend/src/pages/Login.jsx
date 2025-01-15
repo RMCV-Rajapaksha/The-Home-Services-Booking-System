@@ -1,15 +1,29 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { toast } from "react-toastify";
+import axios from "../utils/axiosInstance";
+import { useNavigate, Link } from "react-router-dom";
 import PIC_02 from '../assets/images/pic_02.jpg';
 import GOOGLE from '../assets/images/google (2).png';
 import APPLE from '../assets/images/apple-logo.png';
 
+const initialFormData = {
+  username: '',
+  password: '',
+  rememberMe: false
+};
+
+const initialFormError = {
+  username: '',
+  password: '',
+};
+
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    rememberMe: false
-  });
+  const [formData, setFormData] = useState(initialFormData);
+  const [formError, setFormError] = useState(initialFormError);
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
@@ -19,9 +33,34 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login submitted:', formData);
+
+    try {
+      setLoading(true);
+      const response = await axios.post("/login", formData);
+      const data = response.data;
+
+      window.localStorage.setItem("blogData", JSON.stringify(data));
+
+      toast.success("Login successful", {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: true,
+      });
+      setFormData(initialFormData);
+      setFormError(initialFormError);
+      setLoading(false);
+      navigate("/");
+    } catch (error) {
+      setLoading(false);
+      setFormError(initialFormError);
+      const response = error.response;
+      const data = response.data;
+      toast.error(data.message, {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: true,
+      });
+    }
   };
 
   return (
@@ -44,24 +83,25 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Email address</label>
+              <label className="block mb-1 text-sm font-medium text-gray-700">Username</label>
               <motion.input
                 whileFocus={{ scale: 1.01 }}
-                type="email"
-                name="email"
-                value={formData.email}
+                type="text"
+                name="username"
+                value={formData.username}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your email"
+                placeholder="Enter your username"
               />
+              {formError.username && <p className="error">{formError.username}</p>}
             </div>
 
             <div className="relative">
               <div className="flex items-center justify-between mb-1">
                 <label className="block text-sm font-medium text-gray-700">Password</label>
-                <a href="#" className="text-sm text-blue-600 hover:text-blue-700">
+                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
                   forgot password
-                </a>
+                </Link>
               </div>
               <motion.input
                 whileFocus={{ scale: 1.01 }}
@@ -72,6 +112,7 @@ const Login = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter your password"
               />
+              {formError.password && <p className="error">{formError.password}</p>}
             </div>
 
             <div className="flex items-center">
@@ -93,7 +134,7 @@ const Login = () => {
               type="submit"
               className="w-full py-3 font-medium text-white transition-colors bg-gray-900 rounded-lg hover:bg-gray-800"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </motion.button>
 
             <div className="text-sm text-center text-gray-500">Or</div>
@@ -122,9 +163,9 @@ const Login = () => {
 
             <p className="text-sm text-center text-gray-600">
               Don't have an account?{' '}
-              <a href="#" className="font-medium text-blue-600 hover:text-blue-700">
+              <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-700">
                 Sign Up
-              </a>
+              </Link>
             </p>
           </form>
         </motion.div>

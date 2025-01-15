@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "../components/context/AuthContext";
 
 const PrivateNavbar = () => {
   const navigate = useNavigate();
@@ -9,21 +9,17 @@ const PrivateNavbar = () => {
 
   const handleLogout = () => {
     window.localStorage.removeItem("blogData");
-    toast.success("Logout successfull", {
+    toast.success("Logout successful", {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: true,
     });
     navigate("/login");
   };
+
   return (
     <nav className="primary-link">
-      <NavLink to="/">Home</NavLink>
-      {(auth.role === 1 || auth.role === 2) && (
-        <NavLink to="/categories">Categories</NavLink>
-      )}
-      <NavLink to="/posts">Posts</NavLink>
-      <NavLink to="/profile">Profile</NavLink>
-      <NavLink to="/setting">Setting</NavLink>
+      <NavLink to="/admin">Posts</NavLink>
+      <NavLink to="/create-post">Profile</NavLink>
       <NavLink to="/login" onClick={handleLogout}>
         Logout
       </NavLink>

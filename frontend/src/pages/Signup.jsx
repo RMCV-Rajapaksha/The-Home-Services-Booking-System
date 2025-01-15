@@ -6,6 +6,7 @@ import APPLE from '../assets/images/apple-logo.png';
 import axiosInstance from '../utils/axiosInstance';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ const Signup = () => {
     confirmPassword: '',
     agreeToTerms: false
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
@@ -35,6 +37,9 @@ const Signup = () => {
         password: formData.password
       });
       toast.success(response.data.message);
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000); 
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.message);
