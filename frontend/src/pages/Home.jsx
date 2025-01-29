@@ -131,6 +131,39 @@ const Home = () => {
         </div>
       </section>
 
+
+      <section>
+      <div className="w-full max-w-6xl px-4 py-16 mx-auto">
+      <h1 className="mb-16 font-serif text-4xl text-center">OUR SERVICES</h1>
+      
+      <div className="relative">
+        <div className="flex items-center justify-between gap-6">
+          <button className="p-2 rounded-full hover:bg-gray-100">
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+
+          <div className="grid flex-1 grid-cols-1 gap-6 md:grid-cols-3">
+            {services.map((service, index) => (
+              <div
+                key={index}
+                className={`p-8 rounded-3xl flex flex-col items-center text-center
+                  ${index === 1 ? 'bg-teal-200' : 'bg-teal-100'}`}
+              >
+                {service.icon}
+                <h3 className="mb-4 text-xl font-medium">{service.title}</h3>
+                <p className="text-gray-700">{service.description}</p>
+              </div>
+            ))}
+          </div>
+
+          <button className="p-2 rounded-full hover:bg-gray-100">
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </div>
+      </div>
+    </div>
+      </section>
+
   
 
       {/* Footer Banner */}

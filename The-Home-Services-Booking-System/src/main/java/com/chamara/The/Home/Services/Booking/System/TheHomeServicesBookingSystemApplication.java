@@ -8,6 +8,8 @@ public class TheHomeServicesBookingSystemApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(TheHomeServicesBookingSystemApplication.class, args);
+		
 	}
 
 }
+

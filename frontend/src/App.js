@@ -20,11 +20,12 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="service" element={<Service />} />
           <Route path="/" element={<Home />} />
+          <Route path="admin" element={<Profile />} />
+          <Route path="create-post" element={<CreatePost />} />
           <Route path="*" element={<NotFound />} />
         </Route>
 
         <Route element={<PrivateLayout />}>
-          <Route path="admin" element={<Profile />} />
           <Route path="create-post" element={<CreatePost />} />
           <Route path="create-post" element={<UpdatePost />} />
           <Route path="*" element={<NotFound />} />
