@@ -22,11 +22,12 @@ function App() {
           <Route path="service" element={<Service />} />
           <Route path="terms-conditions" element={<TermsConditions />} />
           <Route path="/" element={<Home />} />
+          <Route path="admin" element={<Profile />} />
+          <Route path="create-post" element={<CreatePost />} />
           <Route path="*" element={<NotFound />} />
         </Route>
 
         <Route element={<PrivateLayout />}>
-          <Route path="admin" element={<Profile />} />
           <Route path="create-post" element={<CreatePost />} />
           <Route path="create-post" element={<UpdatePost />} />
           <Route path="*" element={<NotFound />} />
