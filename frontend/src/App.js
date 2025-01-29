@@ -10,6 +10,7 @@ import PrivateLayout from "./components/layout/PrivateLayout";
 import Profile from "./pages/Profile";
 import CreatePost from "./pages/CreatePost";
 import UpdatePost from "./pages/UpdatePost";
+import TermsConditions from "./pages/Terms-Conditions";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="signup" element={<Signup />} />
           <Route path="login" element={<Login />} />
           <Route path="service" element={<Service />} />
+          <Route path="terms-conditions" element={<TermsConditions />} />
           <Route path="/" element={<Home />} />
           <Route path="*" element={<NotFound />} />
         </Route>
