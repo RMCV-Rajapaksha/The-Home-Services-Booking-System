@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, MapPin, Phone, Facebook, Globe, Share2, Heart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Custom Card Components
 const Card = ({ children, className = '' }) => (
@@ -77,6 +78,7 @@ const Service = () => {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [favorites, setFavorites] = useState(new Set());
+  const navigate = useNavigate();
 
   const fetchServices = async (pageNumber = 0) => {
     setLoading(true);
@@ -114,12 +116,17 @@ const Service = () => {
     });
   };
 
+  const handleCardClick = (id) => {
+    navigate(`/service/${id}`);
+  };
+
   const ServiceCard = ({ service, index }) => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="overflow-hidden bg-white rounded-lg shadow-lg"
+      className="overflow-hidden bg-white rounded-lg shadow-lg cursor-pointer"
+      onClick={() => handleCardClick(service.id)}
     >
       <div className="relative">
         {service.images && service.images[0] ? (
@@ -186,7 +193,10 @@ const Service = () => {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => toggleFavorite(service.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFavorite(service.id);
+              }}
               className="p-2 rounded-full hover:bg-gray-100"
             >
               <Heart

@@ -10,6 +10,7 @@ import PrivateLayout from "./components/layout/PrivateLayout";
 import Profile from "./pages/Profile";
 import CreatePost from "./pages/CreatePost";
 import UpdatePost from "./pages/UpdatePost";
+import ServicePage from "./pages/ServicePage";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="admin" element={<Profile />} />
           <Route path="create-post" element={<CreatePost />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/service/:id" element={<ServicePage />} />
         </Route>
 
         <Route element={<PrivateLayout />}>
