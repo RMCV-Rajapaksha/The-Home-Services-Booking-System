@@ -85,6 +85,15 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Post> getPostById(@PathVariable String id) {
+        Optional<Post> post = repo.findById(id);
+        if (post.isPresent()) {
+            return ResponseEntity.ok(post.get());
+        } else {
+            return ResponseEntity.status(404).body(null);
+        }
+    }
     @PutMapping("/{id}")
     public ResponseEntity<String> updatePost(
             @PathVariable String id,

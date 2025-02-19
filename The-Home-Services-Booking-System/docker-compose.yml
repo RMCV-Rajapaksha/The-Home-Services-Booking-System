@@ -1,9 +1,9 @@
-services:
-    spring-boot-app:
-      container_name: spring-boot-app
-      image: spring/demo
-      ports:
-        - "8080:8082"
-
-
-
+#services:
+#    spring-boot-app:
+#      container_name: spring-boot-app
+#      image: spring/demo
+#      ports:
+#        - "8080:8080"
+#
+#
+#
