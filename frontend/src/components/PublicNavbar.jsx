@@ -48,7 +48,7 @@ const PublicNavbar = () => {
               Services
             </NavLink>
             <NavLink
-              to="/terms"
+              to="/terms-conditions"
               className={({ isActive }) =>
                 `text-sm font-medium transition-colors ${
                   isActive 
