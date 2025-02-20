@@ -14,7 +14,8 @@ import UpdatePost from "./pages/UpdatePost";
 import ServicePage from "./pages/ServicePage";
 
 import TermsConditions from "./pages/Terms-Conditions";
-
+import AdminPost from "./pages/AdminPost";
+import EditPost from "./pages/EditPost";
 
 function App() {
   return (
@@ -30,6 +31,8 @@ function App() {
           <Route path="create-post" element={<CreatePost />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/service/:id" element={<ServicePage />} />
+          <Route path="/admin-post" element={<AdminPost />} />
+          <Route path="/edit-post/:id" element={<EditPost />} />
         </Route>
 
         <Route element={<PrivateLayout />}>

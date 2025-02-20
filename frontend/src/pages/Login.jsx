@@ -1,65 +1,45 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from "react-toastify";
-import axios from "../utils/axiosInstance";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../components/context/AuthContext";
 import PIC_02 from '../assets/images/pic_02.jpg';
 import GOOGLE from '../assets/images/google (2).png';
 import APPLE from '../assets/images/apple-logo.png';
 
 const initialFormData = {
-  username: '',
-  password: '',
-  rememberMe: false
-};
-
-const initialFormError = {
-  username: '',
-  password: '',
+  username: "",
+  password: "",
+  rememberMe: false,
 };
 
 const Login = () => {
   const [formData, setFormData] = useState(initialFormData);
-  const [formError, setFormError] = useState(initialFormError);
+  const [formError, setFormError] = useState({});
   const [loading, setLoading] = useState(false);
-
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await axios.post("/login", formData);
-      const data = response.data;
-
-      window.localStorage.setItem("blogData", JSON.stringify(data));
-
-      toast.success("Login successful", {
-        position: toast.POSITION.TOP_RIGHT,
-        autoClose: true,
-      });
-      setFormData(initialFormData);
-      setFormError(initialFormError);
-      setLoading(false);
-      navigate("/");
+      await login(formData.username, formData.password);
+      toast.success("Logged in successfully!");
+      navigate("/dashboard"); // Redirect to a protected route after login
     } catch (error) {
+      toast.error("Login failed. Please check your credentials.");
+      setFormError({ general: "Invalid username or password" });
+    } finally {
       setLoading(false);
-      setFormError(initialFormError);
-      const response = error.response;
-      const data = response.data;
-      toast.error(data.message, {
-        position: toast.POSITION.TOP_RIGHT,
-        autoClose: true,
-      });
     }
   };
 

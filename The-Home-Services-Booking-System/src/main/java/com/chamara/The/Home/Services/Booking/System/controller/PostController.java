@@ -68,9 +68,9 @@ public class PostController {
         Optional<Post> existingPost = repo.findById(id);
         if (existingPost.isPresent()) {
             repo.deleteById(id);
-            return ResponseEntity.ok("{\"message\": \"Post with ID " + id + " deleted successfully.\"}");
+            return ResponseEntity.ok("{\"message\": \"Post deleted successfully.\"}");
         } else {
-            return ResponseEntity.status(404).body("{\"message\": \"Post with ID " + id + " not found.\"}");
+            return ResponseEntity.status(404).body("{\"message\": \"Post  not found.\"}");
         }
     }
 
@@ -94,6 +94,7 @@ public class PostController {
             return ResponseEntity.status(404).body(null);
         }
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<String> updatePost(
             @PathVariable String id,
