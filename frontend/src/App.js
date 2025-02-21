@@ -27,7 +27,6 @@ function App() {
           <Route path="service" element={<Service />} />
           <Route path="terms-conditions" element={<TermsConditions />} />
           <Route path="/" element={<Home />} />
-          <Route path="admin" element={<Profile />} />
 
           <Route path="*" element={<NotFound />} />
           <Route path="/service/:id" element={<ServicePage />} />
@@ -37,6 +36,7 @@ function App() {
           <Route path="create-post" element={<CreatePost />} />
           <Route path="/edit-post/:id" element={<EditPost />} />
           <Route path="/admin-post" element={<AdminPost />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavLink } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, FileText, PlusCircle, LogOut } from 'lucide-react';
+import { Menu, X, FileText, PlusCircle, LogOut, User } from 'lucide-react';
 import { useAuth } from "./context/AuthContext";
 import LOGO from '../assets/images/logo.png';
 import 'react-toastify/dist/ReactToastify.css';
@@ -62,6 +62,19 @@ const PrivateNavbar = () => {
               <PlusCircle size={18} />
               <span>Create Post</span>
             </NavLink>
+            <NavLink
+              to="/profile"
+              className={({ isActive }) =>
+                `flex items-center space-x-2 text-sm font-medium transition-colors ${
+                  isActive 
+                    ? 'text-gray-900' 
+                    : 'text-gray-500 hover:text-gray-900'
+                }`
+              }
+            >
+              <User size={18} />
+              <span>Profile</span>
+            </NavLink>
             <button
               onClick={handleLogout}
               className="flex items-center px-4 py-2 space-x-2 text-sm font-medium text-white transition-colors bg-gray-900 rounded hover:bg-gray-800"
@@ -120,6 +133,20 @@ const PrivateNavbar = () => {
               >
                 <PlusCircle size={18} />
                 <span>Create Post</span>
+              </NavLink>
+              <NavLink
+                to="/profile"
+                className={({ isActive }) =>
+                  `flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
+                    isActive
+                      ? 'text-gray-900 bg-gray-100'
+                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                  }`
+                }
+                onClick={() => setIsOpen(false)}
+              >
+                <User size={18} />
+                <span>Profile</span>
               </NavLink>
               <button
                 onClick={() => {
