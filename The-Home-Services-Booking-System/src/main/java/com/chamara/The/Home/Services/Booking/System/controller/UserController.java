@@ -37,6 +37,15 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body("{\"message\": \"User registered successfully.\"}");
     }
 
+    @PutMapping(value = "/update", produces = "application/json")
+    public ResponseEntity<String> updateUser(@RequestBody User user) {
+        if (!service.userExists(user.getUsername())) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"User not found.\"}");
+        }
+        service.updateUser(user);
+        return ResponseEntity.ok("{\"message\": \"User updated successfully.\"}");
+    }
+
     @PostMapping(value = "/login", produces = "application/json")
     public ResponseEntity<LoginResponse> login(@RequestBody User user) {
         String token = service.verify(user);

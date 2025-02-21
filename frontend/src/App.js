@@ -28,16 +28,15 @@ function App() {
           <Route path="terms-conditions" element={<TermsConditions />} />
           <Route path="/" element={<Home />} />
           <Route path="admin" element={<Profile />} />
-          <Route path="create-post" element={<CreatePost />} />
+
           <Route path="*" element={<NotFound />} />
           <Route path="/service/:id" element={<ServicePage />} />
-          <Route path="/admin-post" element={<AdminPost />} />
-          <Route path="/edit-post/:id" element={<EditPost />} />
         </Route>
 
         <Route element={<PrivateLayout />}>
           <Route path="create-post" element={<CreatePost />} />
-          <Route path="create-post" element={<UpdatePost />} />
+          <Route path="/edit-post/:id" element={<EditPost />} />
+          <Route path="/admin-post" element={<AdminPost />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

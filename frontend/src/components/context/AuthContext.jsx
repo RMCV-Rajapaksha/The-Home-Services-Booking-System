@@ -6,45 +6,82 @@ export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(null);
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    const storedAuth = window.localStorage.getItem("auth");
+    const initializeAuth = () => {
+      const authData = window.localStorage.getItem("authData");
 
-    if (storedAuth) {
-      const parsedAuth = JSON.parse(storedAuth);
-      setAuth(parsedAuth);
-    } else {
-      setAuth(null);
-    }
-  }, [navigate, location]);
+      if (authData) {
+        try {
+          const parsed = JSON.parse(authData);
+          if (parsed.token && parsed.user) {
+            setAuth(parsed.user);
+            setToken(parsed.token);
+            axios.defaults.headers.common['Authorization'] = `Bearer ${parsed.token}`;
+          }
+        } catch (error) {
+          console.error("Error parsing auth data:", error);
+          localStorage.removeItem("authData");
+        }
+      }
+      setLoading(false);
+    };
 
-  const login = async (username, password) => {
+    initializeAuth();
+  }, []);
+
+  const login = async (credentials) => {
     try {
-      const response = await axios.post("/loginn", { username, password });
+      const response = await axios.post("/login", credentials);
       const { token, user } = response.data;
-      setAuth({ token, user });
-      window.localStorage.setItem("auth", JSON.stringify({ token, user }));
-      navigate("/dashboard"); // Redirect to a protected route after login
+      
+      if (!token || !user) {
+        throw new Error("Invalid response from server");
+      }
+
+      const authData = { token, user };
+      localStorage.setItem("authData", JSON.stringify(authData));
+      
+      setAuth(user);
+      setToken(token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      return response.data;
     } catch (error) {
-      console.error("Login failed:", error);
-      throw error;
+      if (error.response?.status === 401) {
+        throw new Error("Invalid username or password");
+      }
+      throw error.response?.data?.message || "Login failed. Please try again.";
     }
   };
 
   const logout = () => {
+    localStorage.removeItem("authData");
     setAuth(null);
-    window.localStorage.removeItem("auth");
+    setToken(null);
+    delete axios.defaults.headers.common['Authorization'];
     navigate("/login");
   };
 
-  return (
-    <AuthContext.Provider value={{ auth, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = {
+    auth,
+    token,
+    loading,
+    login,
+    logout,
+    isAuthenticated: !!token
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

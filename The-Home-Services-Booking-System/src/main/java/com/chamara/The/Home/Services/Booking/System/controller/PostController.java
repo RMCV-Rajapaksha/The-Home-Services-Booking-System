@@ -3,6 +3,8 @@ package com.chamara.The.Home.Services.Booking.System.controller;
 import com.chamara.The.Home.Services.Booking.System.repo.PostRepository;
 import com.chamara.The.Home.Services.Booking.System.model.Post;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+
 
 @RestController
 @CrossOrigin
@@ -42,23 +46,31 @@ public class PostController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
     @GetMapping
     public ResponseEntity<Page<Post>> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String query,
             @RequestParam(defaultValue = "") String location) {
+        System.out.println(query);
+        System.out.println(location);
+        System.out.println("Fetching all posts with pagination - page: " + page + ", size: " + size);
+        Logger logger = LoggerFactory.getLogger(PostController.class);
         Pageable pageable = PageRequest.of(page, size);
         Page<Post> posts;
 
         if (query != null && !query.isEmpty()) {
+            logger.info("Searching posts with query: {} and location: {}", query, location);
             List<Post> searchResults = repo.findByTitleContainingOrDescriptionContainingOrLocationContaining(query, query, location);
             posts = new PageImpl<>(searchResults, pageable, searchResults.size());
         } else {
+            logger.info("Fetching all posts with pagination - page: {}, size: {}", page, size);
             posts = repo.findAll(pageable);
         }
 
         if (posts.isEmpty()) {
+            logger.info("No posts found");
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(posts);

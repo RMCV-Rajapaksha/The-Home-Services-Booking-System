@@ -45,4 +45,13 @@ public class UserService {
             return "fail";
         }
     }
+
+    public User updateUser(User user) {
+        User existingUser = repo.findByUsername(user.getUsername());
+        if (existingUser != null) {
+            existingUser.setPassword(encoder.encode(user.getPassword()));
+            return repo.save(existingUser);
+        }
+        return null;
+    }
 }

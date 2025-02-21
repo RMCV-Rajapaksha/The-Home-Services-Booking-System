@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { MapPin, Phone, Facebook, Globe, Calendar, Clock, Share2, Heart, ArrowLeft } from 'lucide-react';
+import { MapPin, Phone, Facebook, Globe, Calendar, Clock, Share2, Heart, ArrowLeft, MessageSquare } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
+import axiosInstance from '../utils/axiosInstance';
 
 const ServicePage = () => {
   const { id } = useParams();
@@ -8,15 +10,20 @@ const ServicePage = () => {
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
+  const [isPostingComment, setIsPostingComment] = useState(false);
 
+  // Fetch service details
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/posts/${id}`);
-        const data = await response.json();
-        setService(data);
+        const response = await axiosInstance.get(`/api/posts/${id}`);
+        setService(response.data);
+        toast.success('Service details loaded successfully');
       } catch (error) {
         console.error('Error fetching service:', error);
+        toast.error('Failed to load service details');
       } finally {
         setLoading(false);
       }
@@ -24,6 +31,74 @@ const ServicePage = () => {
 
     fetchService();
   }, [id]);
+
+  // Fetch comments
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const response = await axiosInstance.get(`/api/comments/post/${id}`);
+        setComments(response.data);
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+        toast.error('Failed to load comments');
+      }
+    };
+
+    if (!loading && service) {
+      fetchComments();
+    }
+  }, [id, loading, service]);
+
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    const loadingToast = toast.loading('Posting comment...');
+    setIsPostingComment(true);
+
+    try {
+      await axiosInstance.post('/api/comments', {
+        postId: id,
+        comment: newComment.trim(),
+      });
+
+      // Fetch updated comments
+      const updatedCommentsResponse = await axiosInstance.get(`/api/comments/post/${id}`);
+      setComments(updatedCommentsResponse.data);
+      setNewComment('');
+      toast.success('Comment posted successfully!', {
+        id: loadingToast,
+      });
+    } catch (error) {
+      console.error('Error posting comment:', error);
+      toast.error('Failed to post comment', {
+        id: loadingToast,
+      });
+    } finally {
+      setIsPostingComment(false);
+    }
+  };
+
+  const handleImageChange = (direction) => {
+    if (!service?.images) return;
+    const lastIndex = service.images.length - 1;
+    if (direction === 'next') {
+      setCurrentImageIndex(currentImageIndex === lastIndex ? 0 : currentImageIndex + 1);
+    } else {
+      setCurrentImageIndex(currentImageIndex === 0 ? lastIndex : currentImageIndex - 1);
+    }
+  };
+
+  const toggleLike = async () => {
+    try {
+      await axiosInstance.post(`/api/posts/${id}/like`);
+      setIsLiked(!isLiked);
+      toast.success(isLiked ? 'Removed from favorites' : 'Added to favorites');
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      toast.error('Failed to update favorite status');
+    }
+  };
 
   if (loading) {
     return (
@@ -49,18 +124,18 @@ const ServicePage = () => {
     );
   }
 
-  const handleImageChange = (direction) => {
-    if (!service.images) return;
-    const lastIndex = service.images.length - 1;
-    if (direction === 'next') {
-      setCurrentImageIndex(currentImageIndex === lastIndex ? 0 : currentImageIndex + 1);
-    } else {
-      setCurrentImageIndex(currentImageIndex === 0 ? lastIndex : currentImageIndex - 1);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#333',
+            color: '#fff',
+          },
+        }}
+      />
       <div className="max-w-4xl px-4 py-8 mx-auto">
         <div className="overflow-hidden bg-white shadow-lg rounded-xl">
           {/* Image Gallery */}
@@ -85,6 +160,34 @@ const ServicePage = () => {
                     ))}
                   </div>
                 )}
+                <div className="absolute space-x-2 top-4 right-4">
+                  <button
+                    onClick={toggleLike}
+                    className={`p-2 rounded-full ${
+                      isLiked ? 'bg-red-500' : 'bg-white/80'
+                    } transition-colors hover:bg-red-500`}
+                  >
+                    <Heart
+                      className={`w-5 h-5 ${isLiked ? 'text-white fill-current' : 'text-gray-700'}`}
+                    />
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigator.share({
+                        title: service.title,
+                        url: window.location.href,
+                      }).then(() => {
+                        toast.success('Shared successfully!');
+                      }).catch((error) => {
+                        console.error('Error sharing:', error);
+                        toast.error('Failed to share');
+                      });
+                    }}
+                    className="p-2 transition-colors rounded-full bg-white/80 hover:bg-tertiary hover:text-white"
+                  >
+                    <Share2 className="w-5 h-5" />
+                  </button>
+                </div>
               </>
             ) : (
               <div className="flex items-center justify-center w-full h-full bg-gray-200">
@@ -93,74 +196,83 @@ const ServicePage = () => {
             )}
           </div>
 
-          {/* Content */}
+          {/* Service Content */}
           <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h1 className="text-2xl font-bold text-primary sm:text-3xl">{service.title}</h1>
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => setIsLiked(!isLiked)}
-                  className={`p-2 rounded-full transition-colors ${
-                    isLiked ? 'bg-red-50 text-red-500' : 'bg-gray-50 text-gray-400'
-                  }`}
-                >
-                  <Heart className={`w-6 h-6 ${isLiked ? 'fill-current' : ''}`} />
-                </button>
-                <button className="p-2 text-gray-400 transition-colors rounded-full bg-gray-50 hover:text-tertiary">
-                  <Share2 className="w-6 h-6" />
-                </button>
-              </div>
-            </div>
+            <h1 className="mb-4 text-2xl font-bold text-primary">{service.title}</h1>
+            <p className="mb-6 text-gray-600">{service.description}</p>
 
-            <p className="mb-6 leading-relaxed text-gray-600">{service.description}</p>
-
-            <div className="grid gap-4 mb-6 sm:grid-cols-2">
-              <div className="flex items-center p-4 rounded-lg bg-gray-50">
-                <MapPin className="w-5 h-5 mr-3 text-tertiary" />
-                <span className="text-gray-600">{service.location}</span>
-              </div>
-              {service.contactNo && (
-                <div className="flex items-center p-4 rounded-lg bg-gray-50">
-                  <Phone className="w-5 h-5 mr-3 text-tertiary" />
-                  <span className="text-gray-600">{service.contactNo[0]}</span>
+            {/* Service Details */}
+            <div className="grid gap-4 mb-8 sm:grid-cols-2">
+              {service.location && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-tertiary" />
+                  <span className="text-gray-600">{service.location}</span>
+                </div>
+              )}
+              {service.phone && (
+                <div className="flex items-center gap-2">
+                  <Phone className="w-5 h-5 text-tertiary" />
+                  <span className="text-gray-600">{service.phone}</span>
+                </div>
+              )}
+              {service.website && (
+                <div className="flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-tertiary" />
+                  <a href={service.website} className="text-tertiary hover:underline">{service.website}</a>
                 </div>
               )}
             </div>
+            
+            {/* Comments Section */}
+            <div className="pt-8 mt-8 border-t border-gray-200">
+              <div className="flex items-center gap-2 mb-6">
+                <MessageSquare className="w-5 h-5 text-tertiary" />
+                <h2 className="text-xl font-semibold text-primary">Comments</h2>
+              </div>
 
-            <div className="flex flex-wrap gap-3">
-              {service.facebookLink && (
-                <a
-                  href={service.facebookLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center px-4 py-2 text-white transition-transform bg-blue-600 rounded-lg hover:scale-105"
+              {/* Comment Form */}
+              <form onSubmit={handleAddComment} className="mb-8">
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Write your comment here..."
+                  className="w-full p-3 mb-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-tertiary"
+                  rows="3"
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={isPostingComment || !newComment.trim()}
+                  className={`px-4 py-2 text-white rounded-lg transition-all ${
+                    isPostingComment || !newComment.trim()
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-tertiary hover:bg-secondary-1'
+                  }`}
                 >
-                  <Facebook className="w-5 h-5 mr-2" />
-                  Facebook
-                </a>
-              )}
-              {service.whatappLink && (
-                <a
-                  href={service.whatappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center px-4 py-2 text-white transition-transform bg-green-600 rounded-lg hover:scale-105"
-                >
-                  <Globe className="w-5 h-5 mr-2" />
-                  WhatsApp
-                </a>
-              )}
-              {service.websiteLink && (
-                <a
-                  href={service.websiteLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center px-4 py-2 text-white transition-transform rounded-lg bg-tertiary hover:scale-105"
-                >
-                  <Globe className="w-5 h-5 mr-2" />
-                  Website
-                </a>
-              )}
+                  {isPostingComment ? 'Posting...' : 'Post Comment'}
+                </button>
+              </form>
+
+              {/* Comments List */}
+              <div className="space-y-4">
+                {comments.length === 0 ? (
+                  <p className="py-6 text-center text-gray-500">Be the first to comment!</p>
+                ) : (
+                  comments.map((comment, index) => (
+                    <div
+                      key={comment._id || index}
+                      className="p-4 transition-all rounded-lg bg-gray-50 hover:shadow-md"
+                    >
+                      <p className="text-gray-700">{comment.comment}</p>
+                      <div className="flex items-center gap-2 mt-2 text-sm text-gray-400">
+                        <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
+                        <span>•</span>
+                        <span>{new Date(comment.createdAt).toLocaleTimeString()}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>

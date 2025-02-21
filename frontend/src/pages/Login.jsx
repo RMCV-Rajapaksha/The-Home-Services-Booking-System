@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { toast } from "react-toastify";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { toast, ToastContainer } from "react-toastify";
+import loginValidator from "../validators/loginValidator";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../components/context/AuthContext";
 import PIC_02 from '../assets/images/pic_02.jpg';
@@ -13,33 +14,48 @@ const initialFormData = {
   rememberMe: false,
 };
 
+const initialFormError = {
+  username: "",
+  password: "",
+};
+
 const Login = () => {
   const [formData, setFormData] = useState(initialFormData);
-  const [formError, setFormError] = useState({});
+  const [formError, setFormError] = useState(initialFormError);
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    try {
-      await login(formData.username, formData.password);
-      toast.success("Logged in successfully!");
-      navigate("/dashboard"); // Redirect to a protected route after login
-    } catch (error) {
-      toast.error("Login failed. Please check your credentials.");
-      setFormError({ general: "Invalid username or password" });
-    } finally {
-      setLoading(false);
+
+    const errors = loginValidator({
+      username: formData.username,
+      password: formData.password,
+    });
+
+    if (errors.username || errors.password) {
+      setFormError(errors);
+    } else {
+      try {
+        setLoading(true);
+        await login(formData);
+        
+        toast.success("Login successful!");
+        navigate("/admin-post");
+      } catch (error) {
+        toast.error(error.message);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -52,13 +68,14 @@ const Login = () => {
           transition={{ duration: 0.5 }}
           className="w-full p-12 md:w-1/2"
         >
+          <ToastContainer />
           <motion.div
-            initial={{ y:0, opacity: 0 }}
+            initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
             <h1 className="mb-2 text-3xl font-bold text-gray-800">Welcome back!</h1>
-            <p className="mb-8 text-gray-600">Enter your Credentials to access your account</p>
+            <p className="mb-8 text-gray-600">Enter your credentials to access your account</p>
           </motion.div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -70,17 +87,19 @@ const Login = () => {
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter your username"
               />
-              {formError.username && <p className="error">{formError.username}</p>}
+              {formError.username && (
+                <p className="mt-1 text-sm text-red-600">{formError.username}</p>
+              )}
             </div>
 
-            <div className="relative">
+            <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="block text-sm font-medium text-gray-700">Password</label>
                 <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
-                  forgot password
+                  Forgot password?
                 </Link>
               </div>
               <motion.input
@@ -89,10 +108,12 @@ const Login = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter your password"
               />
-              {formError.password && <p className="error">{formError.password}</p>}
+              {formError.password && (
+                <p className="mt-1 text-sm text-red-600">{formError.password}</p>
+              )}
             </div>
 
             <div className="flex items-center">
@@ -113,11 +134,16 @@ const Login = () => {
               whileTap={{ scale: 0.98 }}
               type="submit"
               className="w-full py-3 font-medium text-white transition-colors bg-gray-900 rounded-lg hover:bg-gray-800"
+              disabled={loading}
             >
               {loading ? "Logging in..." : "Login"}
             </motion.button>
 
-            <div className="text-sm text-center text-gray-500">Or</div>
+            <div className="relative flex items-center justify-center gap-4 my-8">
+              <div className="w-full h-px bg-gray-300"></div>
+              <span className="text-sm text-gray-500 bg-white">Or</span>
+              <div className="w-full h-px bg-gray-300"></div>
+            </div>
 
             <div className="flex gap-4">
               <motion.button
@@ -158,7 +184,7 @@ const Login = () => {
         >
           <img
             src={PIC_02}
-            alt="Woman working"
+            alt="Login illustration"
             className="object-cover w-full h-full"
           />
         </motion.div>

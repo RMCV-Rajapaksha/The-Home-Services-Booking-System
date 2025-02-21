@@ -11,11 +11,17 @@ import { useNavigate } from 'react-router-dom';
 import axios from '../utils/axiosInstance';
 import { Toaster, toast } from 'react-hot-toast';
 
+import { useAuth } from "../components/context/AuthContext";
+
 const AdminPost = () => {
   const [posts, setPosts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  
+  const { auth } = useAuth();
+  
+  
 
   useEffect(() => {
     fetchPosts();
@@ -23,8 +29,11 @@ const AdminPost = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get('/api/posts/user/john.doe@example.com');
+   
+      const response = await axios.get(`/api/posts/user/${auth.username}`);
+    
       setPosts(response.data);
+      
       setLoading(false);
     } catch (error) {
       console.error('Error fetching posts:', error);
