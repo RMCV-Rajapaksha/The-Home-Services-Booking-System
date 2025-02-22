@@ -9,17 +9,35 @@ import Service from "./pages/Service";
 import PrivateLayout from "./components/layout/PrivateLayout";
 import Profile from "./pages/Profile";
 import CreatePost from "./pages/CreatePost";
-import UpdatePost from "./pages/UpdatePost";
-
 import ServicePage from "./pages/ServicePage";
-
 import TermsConditions from "./pages/Terms-Conditions";
 import AdminPost from "./pages/AdminPost";
 import EditPost from "./pages/EditPost";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
     <>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: "#333",
+            color: "#fff",
+          },
+          success: {
+            style: {
+              background: "green",
+            },
+          },
+          error: {
+            style: {
+              background: "red",
+            },
+          },
+        }}
+      />
       <Routes>
         <Route element={<PublicLayout />}>
           <Route path="signup" element={<Signup />} />
@@ -27,9 +45,8 @@ function App() {
           <Route path="service" element={<Service />} />
           <Route path="terms-conditions" element={<TermsConditions />} />
           <Route path="/" element={<Home />} />
-
-          <Route path="*" element={<NotFound />} />
           <Route path="/service/:id" element={<ServicePage />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
 
         <Route element={<PrivateLayout />}>

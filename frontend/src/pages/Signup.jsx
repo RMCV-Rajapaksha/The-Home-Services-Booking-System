@@ -4,8 +4,8 @@ import PIC_01 from '../assets/images/pic_01.jpg';
 import GOOGLE from '../assets/images/google (2).png';
 import APPLE from '../assets/images/apple-logo.png';
 import axiosInstance from '../utils/axiosInstance';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import toast, { Toaster } from 'react-hot-toast'; 
+
 import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
@@ -31,26 +31,31 @@ const Signup = () => {
       toast.error("Passwords do not match");
       return;
     }
+
+    const signupPromise = axiosInstance.post('/register', {
+      username: formData.username,
+      password: formData.password
+    });
+
+    toast.promise(signupPromise, {
+      loading: 'Creating your account...',
+      success: 'Account created successfully!',
+      error: (err) => err.response?.data?.message || 'Failed to create account'
+    });
+
     try {
-      const response = await axiosInstance.post('/register', {
-        username: formData.username,
-        password: formData.password
-      });
-      toast.success(response.data.message);
+      await signupPromise;
       setTimeout(() => {
         navigate('/login');
-      }, 2000); 
+      }, 2000);
     } catch (error) {
-      if (error.response) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error("An error occurred. Please try again.");
-      }
+      console.error('Signup error:', error);
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
+       <Toaster position="top-right" />
       <div className="flex flex-col-reverse w-full max-w-6xl overflow-hidden bg-white shadow-xl md:flex-row rounded-3xl">
         <motion.div 
           initial={{ x: -50, opacity: 0 }}
@@ -175,7 +180,7 @@ const Signup = () => {
           />
         </motion.div>
       </div>
-      <ToastContainer />
+
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { toast, ToastContainer } from "react-toastify";
+import toast, { Toaster } from 'react-hot-toast';
 import loginValidator from "../validators/loginValidator";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../components/context/AuthContext";
@@ -33,7 +33,6 @@ const Login = () => {
       [name]: type === "checkbox" ? checked : value
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -44,23 +43,32 @@ const Login = () => {
 
     if (errors.username || errors.password) {
       setFormError(errors);
-    } else {
-      try {
-        setLoading(true);
-        await login(formData);
-        
-        toast.success("Login successful!");
-        navigate("/admin-post");
-      } catch (error) {
-        toast.error(error.message);
-      } finally {
-        setLoading(false);
-      }
+      toast.error("Please check your input fields");
+      return;
+    }
+
+    const loginPromise = login(formData);
+
+    toast.promise(loginPromise, {
+      loading: 'Logging in...',
+      success: 'Login successful!',
+      error: (err) => err.message || 'Login failed'
+    });
+
+    try {
+      setLoading(true);
+      await loginPromise;
+      navigate("/admin-post");
+    } catch (error) {
+      console.error('Login error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <Toaster position="top-right" />
       <div className="flex flex-col-reverse w-full max-w-6xl overflow-hidden bg-white shadow-xl md:flex-row rounded-3xl">
         <motion.div 
           initial={{ x: -50, opacity: 0 }}
@@ -68,7 +76,7 @@ const Login = () => {
           transition={{ duration: 0.5 }}
           className="w-full p-12 md:w-1/2"
         >
-          <ToastContainer />
+     
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

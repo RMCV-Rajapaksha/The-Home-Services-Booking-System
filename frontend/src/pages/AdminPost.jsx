@@ -43,12 +43,19 @@ const AdminPost = () => {
   };
 
   const handleDelete = async (postId) => {
+    const deletePromise = axios.delete(`/api/posts/${postId}`);
+
+    toast.promise(deletePromise, {
+      loading: 'Deleting post...',
+      success: 'Post deleted successfully',
+      error: 'Failed to delete post'
+    });
+
     try {
-      await axios.delete(`/api/posts/${postId}`);
+      await deletePromise;
       setPosts(posts.filter(post => post.id !== postId));
-      toast.success('Post deleted successfully');
     } catch (error) {
-      toast.error('Failed to delete post');
+      console.error('Delete error:', error);
     }
   };
 
