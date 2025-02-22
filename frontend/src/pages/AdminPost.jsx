@@ -10,7 +10,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import axios from '../utils/axiosInstance';
 import { Toaster, toast } from 'react-hot-toast';
-
+import Loader from '../components/Loader';
 import { useAuth } from "../components/context/AuthContext";
 
 const AdminPost = () => {
@@ -74,14 +74,16 @@ const AdminPost = () => {
       {/* Content Section */}
       <div className="p-6 mx-auto max-w-7xl">
         <AnimatePresence>
-          {loading ? (
+        {loading ? (
+            <Loader />
+          ) : filteredPosts.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center justify-center h-64"
+              className="p-8 text-center"
             >
-              <div className="w-12 h-12 border-b-2 rounded-full animate-spin border-primary"></div>
+              <AlertCircle className="w-12 h-12 mx-auto text-gray-400" />
+              <p className="mt-4 text-lg text-gray-600">No posts found</p>
             </motion.div>
           ) : filteredPosts.length === 0 ? (
             <motion.div

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { MapPin, Phone, Facebook, Globe, Calendar, Clock, Share2, Heart, ArrowLeft, MessageSquare } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import axiosInstance from '../utils/axiosInstance';
+import Loader from '../components/Loader';
 
 const ServicePage = () => {
   const { id } = useParams();
@@ -101,11 +102,7 @@ const ServicePage = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="w-16 h-16 border-4 border-t-4 border-gray-200 rounded-full animate-spin border-t-tertiary"></div>
-      </div>
-    );
+    return <Loader />;
   }
 
   if (!service) {
