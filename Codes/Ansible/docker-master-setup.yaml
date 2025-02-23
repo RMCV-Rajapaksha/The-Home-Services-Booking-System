@@ -2,10 +2,34 @@
 - name: Install Docker
   hosts: localhost
   become: true
+  vars:
+    proceed_with_docker: true
+
   tasks:
+    - name: Check if Docker is already installed
+      command: docker --version
+      register: docker_check
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Display Docker check result
+      debug:
+        msg: "Docker is already installed"
+      when: docker_check.rc == 0
+
+    - name: Stop playbook if Docker is already installed
+      meta: end_play
+      when: docker_check.rc == 0
+
+    - name: Stop playbook if installation is not desired
+      meta: end_play
+      when: not proceed_with_docker
+
     - name: Update apt cache
       apt:
         update_cache: yes
+      ignore_errors: yes
+      register: apt_update_result
 
     - name: Install prerequisites
       apt:
@@ -16,17 +40,23 @@
           - software-properties-common
           - gnupg
         state: present
+      ignore_errors: yes
+      register: prereq_install_result
 
     - name: Add Docker GPG key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
+      ignore_errors: yes
+      register: gpg_key_result
 
     - name: Add Docker repository
       apt_repository:
         repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
         state: present
         filename: docker
+      ignore_errors: yes
+      register: repo_add_result
 
     - name: Install Docker
       apt:
@@ -37,15 +67,33 @@
           - docker-buildx-plugin
           - docker-compose-plugin
         state: present
+      ignore_errors: yes
+      register: docker_install_result
 
     - name: Start Docker service
       service:
         name: docker
         state: started
         enabled: yes
+      ignore_errors: yes
+      register: docker_service_result
 
     - name: Add current user to docker group
       user:
         name: "{{ ansible_user }}"
         groups: docker
         append: yes
+      ignore_errors: yes
+      register: user_group_result
+
+    - name: Display installation summary
+      debug:
+        msg: |
+          Installation Summary:
+          - Apt Update: {{ apt_update_result.failed | default(false) | ternary('Failed', 'Success') }}
+          - Prerequisites: {{ prereq_install_result.failed | default(false) | ternary('Failed', 'Success') }}
+          - GPG Key: {{ gpg_key_result.failed | default(false) | ternary('Failed', 'Success') }}
+          - Repository: {{ repo_add_result.failed | default(false) | ternary('Failed', 'Success') }}
+          - Docker Install: {{ docker_install_result.failed | default(false) | ternary('Failed', 'Success') }}
+          - Service Start: {{ docker_service_result.failed | default(false) | ternary('Failed', 'Success') }}
+          - User Group: {{ user_group_result.failed | default(false) | ternary('Failed', 'Success') }}

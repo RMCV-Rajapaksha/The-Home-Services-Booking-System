@@ -3,32 +3,48 @@
   hosts: localhost
   become: true
   tasks:
+    - name: Check if Jenkins is already installed
+      command: dpkg -l jenkins
+      register: jenkins_check
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Exit playbook if Jenkins is already installed
+      meta: end_play
+      when: jenkins_check.rc == 0
+
     - name: Install Java
       apt:
         name: openjdk-17-jre
         state: present
+      when: jenkins_check.rc != 0
 
     - name: Add Jenkins Repository Key
       apt_key:
-        url:  https://pkg.jenkins.io/debian/jenkins.io-2023.key
+        url: https://pkg.jenkins.io/debian/jenkins.io-2023.key
         state: present
+      when: jenkins_check.rc != 0
 
     - name: Add Jenkins Repository
       apt_repository:
         repo: 'deb https://pkg.jenkins.io/debian binary/'
         state: present
+      when: jenkins_check.rc != 0
 
     - name: Install Jenkins
       apt:
         name: jenkins
         state: present
+      when: jenkins_check.rc != 0
 
     - name: Start Jenkins service
       service:
         name: jenkins
         state: started
+      when: jenkins_check.rc != 0
         
     - name: enable jenkins to start at boot time
       service:
         name: jenkins
         enabled: yes
+      when: jenkins_check.rc != 0
