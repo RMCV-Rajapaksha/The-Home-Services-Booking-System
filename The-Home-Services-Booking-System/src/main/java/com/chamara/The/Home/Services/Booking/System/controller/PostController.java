@@ -31,6 +31,9 @@ public class PostController {
     @Autowired
     private PostRepository repo;
 
+    public PostController(PostRepository repo) {
+    }
+
     @ApiIgnore
     @RequestMapping(value = "/")
     public void redirect(HttpServletResponse response) throws IOException {

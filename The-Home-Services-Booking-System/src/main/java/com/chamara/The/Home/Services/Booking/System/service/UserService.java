@@ -23,6 +23,9 @@ public class UserService {
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
+    public UserService(UserRepository repo, JWTService jwtService, AuthenticationManager authManager) {
+    }
+
     public User register(User user) {
         user.setPassword(encoder.encode(user.getPassword()));
         return repo.save(user);

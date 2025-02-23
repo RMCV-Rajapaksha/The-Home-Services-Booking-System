@@ -28,6 +28,9 @@ public class UserController {
     @Autowired
     private MyUserDetailsService userDetailsService;
 
+    public UserController(UserService service) {
+    }
+
     @PostMapping(value = "/register", produces = "application/json")
     public ResponseEntity<String> register(@RequestBody User user) {
         if (service.userExists(user.getUsername())) {
