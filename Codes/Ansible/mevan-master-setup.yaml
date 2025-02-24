@@ -1,0 +1,62 @@
+---
+- name: Install Maven if not present
+  hosts: all
+  become: yes
+  
+  tasks:
+    - name: Check if Maven is installed
+      command: mvn -version
+      register: maven_check
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Install Java (prerequisite for Maven)
+      apt:
+        name: openjdk-11-jdk
+        state: present
+      when: maven_check.rc != 0
+
+    - name: Download Maven
+      get_url:
+        url: "https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz"
+        dest: "/tmp/apache-maven-3.9.6-bin.tar.gz"
+      when: maven_check.rc != 0
+
+    - name: Create Maven directory
+      file:
+        path: /opt/maven
+        state: directory
+      when: maven_check.rc != 0
+
+    - name: Extract Maven archive
+      unarchive:
+        src: "/tmp/apache-maven-3.9.6-bin.tar.gz"
+        dest: "/opt/maven"
+        remote_src: yes
+      when: maven_check.rc != 0
+
+    - name: Create Maven environment variables file
+      copy:
+        dest: /etc/profile.d/maven.sh
+        content: |
+          export M2_HOME=/opt/maven/apache-maven-3.9.6
+          export PATH=${M2_HOME}/bin:${PATH}
+        mode: '0644'
+      when: maven_check.rc != 0
+
+    - name: Source Maven environment variables
+      shell: source /etc/profile.d/maven.sh
+      args:
+        executable: /bin/bash
+      when: maven_check.rc != 0
+
+    - name: Cleanup Maven archive
+      file:
+        path: "/tmp/apache-maven-3.9.6-bin.tar.gz"
+        state: absent
+      when: maven_check.rc != 0
+
+    - name: Verify Maven installation
+      command: mvn -version
+      register: maven_verify
+      when: maven_check.rc != 0
