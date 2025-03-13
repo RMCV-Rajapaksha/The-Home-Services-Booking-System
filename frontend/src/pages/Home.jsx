@@ -3,7 +3,10 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import HOME from '../assets/images/2.png';
 import HOME_01 from '../assets/images/1087.png';
+import { useNavigate, Link } from "react-router-dom";
 const Home = () => {
+
+  const navigate = useNavigate();
   const services = [
     {
       title: 'Home Cleaning',
@@ -69,6 +72,7 @@ const Home = () => {
                 Your home deserves the best care, and that's exactly what we provide. From beginning to end, you can trust us to handle your household needs with professionalism and care, giving you peace of mind.
               </p>
               <motion.button
+              onClick={() => navigate('/login')}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-3 text-white transition-colors bg-gray-900 rounded-lg hover:bg-gray-800"
