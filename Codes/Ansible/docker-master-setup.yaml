@@ -97,3 +97,7 @@
           - Docker Install: {{ docker_install_result.failed | default(false) | ternary('Failed', 'Success') }}
           - Service Start: {{ docker_service_result.failed | default(false) | ternary('Failed', 'Success') }}
           - User Group: {{ user_group_result.failed | default(false) | ternary('Failed', 'Success') }}
+
+
+
+          
