@@ -83,7 +83,7 @@ pipeline {
         post {
            always {
                    cleanWs()
-                   junit 'The-Home-Services-Booking-System/target/surefire-reports/*.xml'
+                   junit '**/The-Home-Services-Booking-System/target/surefire-reports/*.xml'
                    plot csvFileName: 'test-duration.csv',
                         title: 'Test Execution Time',
                         group: 'Test Metrics',
