@@ -33,7 +33,6 @@ pipeline {
                     echo "Running application tests without a database connection"
                      cd The-Home-Services-Booking-System
                      mvn test -DskipTests=false
-
                     '''
                 }
             }
@@ -84,6 +83,15 @@ pipeline {
         always {
             cleanWs()
         }
+
+          always {
+                     junit '**/target/surefire-reports/*.xml'
+                     plot csvFileName: 'test-duration.csv',
+                          title: 'Test Execution Time',
+                          group: 'Test Metrics',
+                          style: 'line',
+                          yAxis: 'Time (ms)'
+                 }
 
         success {
             emailext(
