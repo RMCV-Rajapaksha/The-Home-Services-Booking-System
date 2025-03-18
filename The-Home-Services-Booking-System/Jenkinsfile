@@ -31,7 +31,9 @@ pipeline {
                 script {
                     sh '''
                     echo "Running application tests without a database connection"
-                    mvn test -DskipTests=false
+                     cd The-Home-Services-Booking-System
+                     mvn test -DskipTests=false
+
                     '''
                 }
             }
