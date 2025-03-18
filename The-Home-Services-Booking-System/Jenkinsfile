@@ -34,6 +34,7 @@ pipeline {
                       cd The-Home-Services-Booking-System
                       mvn test -DskipTests=false | tee test-output.log
                       ls -l target/surefire-reports/
+                      pwd
                     '''
                 }
             }
