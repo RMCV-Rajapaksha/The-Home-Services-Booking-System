@@ -30,15 +30,16 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    echo "Running application tests without a database connection"
-                      cd The-Home-Services-Booking-System
-                      mvn test -DskipTests=false | tee test-output.log
-                      ls -l target/surefire-reports/
-                      pwd
+                    echo "Running application tests"
+                    cd The-Home-Services-Booking-System
+                    mvn test -DskipTests=false || true
+                    ls -l target/surefire-reports/
+                    cat target/surefire-reports/*.xml || true
                     '''
                 }
             }
         }
+
 
 
         stage('Docker Build & Push') {
@@ -83,13 +84,14 @@ pipeline {
 
         post {
            always {
-                   cleanWs()
+
                    junit '/var/lib/jenkins/workspace/cicd_project/The-Home-Services-Booking-System/target/surefire-reports/TEST-com.chamara.The.Home.Services.Booking.System.TheHomeServicesBookingSystemApplicationTests.xml'
                    plot csvFileName: 'test-duration.csv',
                         title: 'Test Execution Time',
                         group: 'Test Metrics',
                         style: 'line',
                         yAxis: 'Time (ms)'
+                    cleanWs()
                }
 
             success {
