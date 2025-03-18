@@ -79,38 +79,36 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            cleanWs()
+        post {
+            always {
+                cleanWs()
+                junit '**/target/surefire-reports/*.xml'
+                plot csvFileName: 'test-duration.csv',
+                     title: 'Test Execution Time',
+                     group: 'Test Metrics',
+                     style: 'line',
+                     yAxis: 'Time (ms)'
+            }
+
+            success {
+                emailext(
+                    to: 'sch.chamara@gmail.com',
+                    subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                    body: """<p>Good news! The job <b>${env.JOB_NAME}</b> build <b>${env.BUILD_NUMBER}</b> succeeded.</p>""",
+                    replyTo: 'sch.chamara@gmail.com',
+                    from: 'sch.chamara@gmail.com'
+                )
+            }
+
+            failure {
+                emailext(
+                    to: 'sch.chamara@gmail.com',
+                    subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                    body: """<p>Unfortunately, the job <b>${env.JOB_NAME}</b> build <b>${env.BUILD_NUMBER}</b> failed.</p>""",
+                    replyTo: 'sch.chamara@gmail.com',
+                    from: 'sch.chamara@gmail.com'
+                )
+            }
         }
 
-          always {
-                     junit '**/target/surefire-reports/*.xml'
-                     plot csvFileName: 'test-duration.csv',
-                          title: 'Test Execution Time',
-                          group: 'Test Metrics',
-                          style: 'line',
-                          yAxis: 'Time (ms)'
-                 }
-
-        success {
-            emailext(
-                to: 'sch.chamara@gmail.com',
-                subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                body: """<p>Good news! The job <b>${env.JOB_NAME}</b> build <b>${env.BUILD_NUMBER}</b> succeeded.</p>""",
-                replyTo: 'sch.chamara@gmail.com',
-                from: 'sch.chamara@gmail.com'
-            )
-        }
-
-        failure {
-            emailext(
-                to: 'sch.chamara@gmail.com',
-                subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                body: """<p>Unfortunately, the job <b>${env.JOB_NAME}</b> build <b>${env.BUILD_NUMBER}</b> failed.</p>""",
-                replyTo: 'sch.chamara@gmail.com',
-                from: 'sch.chamara@gmail.com'
-            )
-        }
-    }
 }
