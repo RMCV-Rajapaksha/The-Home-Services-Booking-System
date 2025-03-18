@@ -29,17 +29,14 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'learnfi-prod-database-credentials', usernameVariable: 'DB_USERNAME', passwordVariable: 'DB_PASSWORD')]) {
-                        sh '''
-                        echo "Testing application with MySQL database"
-                        export DB_USERNAME=$DB_USERNAME
-                        export DB_PASSWORD=$DB_PASSWORD
-                        mvn test
-                        '''
-                    }
+                    sh '''
+                    echo "Running application tests without a database connection"
+                    mvn test -DskipTests=false
+                    '''
                 }
             }
         }
+
 
         stage('Docker Build & Push') {
             steps {
