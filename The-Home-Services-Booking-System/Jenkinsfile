@@ -20,6 +20,7 @@ pipeline {
             steps {
                 git branch: 'main', url: 'https://github.com/RMCV-Rajapaksha/The-Home-Services-Booking-System.git'
         }
+        }
 
         stage('Build') {
             steps {
