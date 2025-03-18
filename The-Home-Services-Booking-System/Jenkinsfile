@@ -31,8 +31,9 @@ pipeline {
                 script {
                     sh '''
                     echo "Running application tests without a database connection"
-                     cd The-Home-Services-Booking-System
-                     mvn test
+                      cd The-Home-Services-Booking-System
+                      mvn test -DskipTests=false | tee test-output.log
+                      ls -l target/surefire-reports/
                     '''
                 }
             }
