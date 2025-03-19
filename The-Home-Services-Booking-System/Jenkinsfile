@@ -58,9 +58,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sshagent([SSH_CREDENTIALS_ID]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'SSH_CREDENTIALS_ID', keyFileVariable: 'SSH_KEY')]) {
                         sh '''
-                        ssh -o StrictHostKeyChecking=no $SSH_TARGET << 'EOF'
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no $SSH_TARGET << 'EOF'
                         docker pull ${DOCKER_IMAGE}
                         docker stop ${DOCKER_CONTAINER} || true
                         docker rm ${DOCKER_CONTAINER} || true
@@ -71,7 +71,7 @@ pipeline {
                 }
             }
         }
-    }  // <-- This closing brace correctly ends 'stages' block
+ // <-- This closing brace correctly ends 'stages' block
 
     post {
         always {
