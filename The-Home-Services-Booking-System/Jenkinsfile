@@ -55,24 +55,32 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                script {
-                    sshagent([SSH_CREDENTIALS_ID]) {
-                        sh '''
-                        ssh -T -o StrictHostKeyChecking=no $SSH_TARGET <<EOF
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker pull $DOCKER_IMAGE
-                        docker stop $DOCKER_CONTAINER || true
-                        docker rm $DOCKER_CONTAINER || true
-                        docker run -d --name $DOCKER_CONTAINER -p 8080:8080 $DOCKER_IMAGE
-                        docker logout
-                        EOF
-                        '''
-                    }
-                }
-            }
-        }
+
+       stage('Deploy') {
+           steps {
+               script {
+                   sshagent([SSH_CREDENTIALS_ID]) {
+                       withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID,
+                                                         usernameVariable: 'DOCKER_USER',
+                                                         passwordVariable: 'DOCKER_PASS')]) {
+                           sh '''
+                           ssh -T -o StrictHostKeyChecking=no $SSH_TARGET <<'EOF'
+                           echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                           docker pull $DOCKER_IMAGE
+                           docker stop $DOCKER_CONTAINER || true
+                           docker rm $DOCKER_CONTAINER || true
+                           docker run -d --name $DOCKER_CONTAINER -p 8080:8080 $DOCKER_IMAGE
+                           docker logout
+                           EOF
+                           '''
+                       }
+                   }
+               }
+           }
+       }
+
+
+
     }
 
     post {
