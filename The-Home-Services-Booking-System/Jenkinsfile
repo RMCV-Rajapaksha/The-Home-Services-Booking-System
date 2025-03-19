@@ -71,7 +71,7 @@ pipeline {
                 }
             }
         }
- // <-- This closing brace correctly ends 'stages' block
+}
 
     post {
         always {
