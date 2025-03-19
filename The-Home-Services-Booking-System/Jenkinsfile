@@ -22,7 +22,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                 sh 'cd The-Home-Services-Booking-System && mvn clean package'
+                sh 'cd The-Home-Services-Booking-System && mvn clean package'
             }
         }
 
@@ -43,9 +43,9 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh '''
-                        docker login -u $DOCKER_USER -p $DOCKER_PASS
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                         docker build -t $DOCKER_IMAGE -f The-Home-Services-Booking-System/Dockerfile The-Home-Services-Booking-System
                         docker push $DOCKER_IMAGE
                         docker logout
@@ -55,38 +55,29 @@ pipeline {
             }
         }
 
-       stage('Deploy') {
-           steps {
-               script {
-                   sshagent(['homemate-dev-server']) {
-                       sh '''
-                      ssh -T -o StrictHostKeyChecking=no $SSH_TARGET <<'EOF'
-                      docker login -u $DOCKER_USER -p $DOCKER_PASS
-                      docker pull $DOCKER_IMAGE
-                      docker stop $DOCKER_CONTAINER || true
-                      docker rm $DOCKER_CONTAINER || true
-                      docker run -d --name $DOCKER_CONTAINER -p 8080:8080 $DOCKER_IMAGE
-                      docker logout
-                      EOF
-
-                       '''
-                   }
-               }
-           }
-       }
-
-
-
-
-
-}
-
-
-
+        stage('Deploy') {
+            steps {
+                script {
+                    sshagent([SSH_CREDENTIALS_ID]) {
+                        sh '''
+                        ssh -T -o StrictHostKeyChecking=no $SSH_TARGET <<EOF
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker pull $DOCKER_IMAGE
+                        docker stop $DOCKER_CONTAINER || true
+                        docker rm $DOCKER_CONTAINER || true
+                        docker run -d --name $DOCKER_CONTAINER -p 8080:8080 $DOCKER_IMAGE
+                        docker logout
+                        EOF
+                        '''
+                    }
+                }
+            }
+        }
+    }
 
     post {
         always {
-            junit 'The-Home-Services-Booking-System/target/surefire-reports/TEST-com.chamara.The.Home.Services.Booking.System.TheHomeServicesBookingSystemApplicationTests.xml'
+            junit 'The-Home-Services-Booking-System/target/surefire-reports/TEST-*.xml'
             plot csvFileName: 'test-duration.csv',
                  title: 'Test Execution Time',
                  group: 'Test Metrics',
@@ -98,7 +89,9 @@ pipeline {
             emailext(
                 to: 'sch.chamara@gmail.com',
                 subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                body: """<p>Good news! The job <b>${env.JOB_NAME}</b> build <b>${env.BUILD_NUMBER}</b> succeeded.</p>""",
+                body: """
+                <p>Good news! The job <b>${env.JOB_NAME}</b> build <b>${env.BUILD_NUMBER}</b> succeeded.</p>
+                """,
                 replyTo: 'sch.chamara@gmail.com',
                 from: 'sch.chamara@gmail.com'
             )
@@ -108,10 +101,12 @@ pipeline {
             emailext(
                 to: 'sch.chamara@gmail.com',
                 subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                body: """<p>Unfortunately, the job <b>${env.JOB_NAME}</b> build <b>${env.BUILD_NUMBER}</b> failed.</p>""",
+                body: """
+                <p>Unfortunately, the job <b>${env.JOB_NAME}</b> build <b>${env.BUILD_NUMBER}</b> failed.</p>
+                """,
                 replyTo: 'sch.chamara@gmail.com',
                 from: 'sch.chamara@gmail.com'
             )
         }
     }
-}  // <-- This closing brace correctly ends 'pipeline' block
+}
