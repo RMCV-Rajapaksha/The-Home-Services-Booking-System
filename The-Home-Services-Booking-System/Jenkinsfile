@@ -55,13 +55,13 @@ pipeline {
             }
         }
 
-        
+
 stage('Deploy') {
     steps {
         script {
             sshagent([SSH_CREDENTIALS_ID]) {
                 sh '''
-                ssh -T -o StrictHostKeyChecking=no $SSH_TARGET <<'EOF'
+                ssh -T -o StrictHostKeyChecking=no $SSH_TARGET <<EOF
                 set -xe  # Enables debugging
                 docker pull $DOCKER_IMAGE
                 docker ps -q --filter "name=$DOCKER_CONTAINER" | grep -q . && docker stop $DOCKER_CONTAINER || true
@@ -74,7 +74,6 @@ stage('Deploy') {
         }
     }
 }
-
 
 
 
