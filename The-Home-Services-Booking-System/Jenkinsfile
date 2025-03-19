@@ -40,8 +40,6 @@ pipeline {
             }
         }
 
-
-
         stage('Docker Build & Push') {
             steps {
                 script {
@@ -56,7 +54,6 @@ pipeline {
                 }
             }
         }
-
 
         stage('Deploy') {
             steps {
@@ -74,42 +71,36 @@ pipeline {
                 }
             }
         }
+    }  // <-- This closing brace correctly ends 'stages' block
 
+    post {
+        always {
+            junit 'The-Home-Services-Booking-System/target/surefire-reports/TEST-com.chamara.The.Home.Services.Booking.System.TheHomeServicesBookingSystemApplicationTests.xml'
+            plot csvFileName: 'test-duration.csv',
+                 title: 'Test Execution Time',
+                 group: 'Test Metrics',
+                 style: 'line'
+            cleanWs()
+        }
 
+        success {
+            emailext(
+                to: 'sch.chamara@gmail.com',
+                subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                body: """<p>Good news! The job <b>${env.JOB_NAME}</b> build <b>${env.BUILD_NUMBER}</b> succeeded.</p>""",
+                replyTo: 'sch.chamara@gmail.com',
+                from: 'sch.chamara@gmail.com'
+            )
+        }
 
-
+        failure {
+            emailext(
+                to: 'sch.chamara@gmail.com',
+                subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                body: """<p>Unfortunately, the job <b>${env.JOB_NAME}</b> build <b>${env.BUILD_NUMBER}</b> failed.</p>""",
+                replyTo: 'sch.chamara@gmail.com',
+                from: 'sch.chamara@gmail.com'
+            )
         }
     }
-post {
-    always {
-        junit 'The-Home-Services-Booking-System/target/surefire-reports/TEST-com.chamara.The.Home.Services.Booking.System.TheHomeServicesBookingSystemApplicationTests.xml'
-        plot csvFileName: 'test-duration.csv',
-             title: 'Test Execution Time',
-             group: 'Test Metrics',
-             style: 'line'
-        cleanWs()
-    }
-
-    success {
-        emailext(
-            to: 'sch.chamara@gmail.com',
-            subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-            body: """<p>Good news! The job <b>${env.JOB_NAME}</b> build <b>${env.BUILD_NUMBER}</b> succeeded.</p>""",
-            replyTo: 'sch.chamara@gmail.com',
-            from: 'sch.chamara@gmail.com'
-        )
-    }
-
-    failure {
-        emailext(
-            to: 'sch.chamara@gmail.com',
-            subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-            body: """<p>Unfortunately, the job <b>${env.JOB_NAME}</b> build <b>${env.BUILD_NUMBER}</b> failed.</p>""",
-            replyTo: 'sch.chamara@gmail.com',
-            from: 'sch.chamara@gmail.com'
-        )
-    }
-}
-
-
-}
+}  // <-- This closing brace correctly ends 'pipeline' block
