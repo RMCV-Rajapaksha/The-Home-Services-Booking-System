@@ -47,8 +47,8 @@ pipeline {
                         sh '''
                         pwd
                         ls
-                        cd Codes/Ancible
-                        scp Codes/Ancible/docker-master-setup.yaml $SSH_TARGET:/tmp/install-docker-jenkins.yaml
+                        cd Codes/Ansible
+                       scp Codes/Ansible/docker-master-setup.yaml $SSH_TARGET:/tmp/install-docker-jenkins.yaml
                         ssh -o StrictHostKeyChecking=no $SSH_TARGET "ansible-playbook /tmp/install-docker-jenkins.yaml --connection=local"
                         '''
                     }
