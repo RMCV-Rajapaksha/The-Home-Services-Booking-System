@@ -49,13 +49,20 @@ pipeline {
                         ls
                         cd Codes/Ansible
                         ls
-                       scp Codes/Ansible/docker-master-setup.yaml $SSH_TARGET:/tmp/install-docker-jenkins.yaml
-                        ssh -o StrictHostKeyChecking=no $SSH_TARGET "ansible-playbook /tmp/install-docker-jenkins.yaml --connection=local"
+
+                        # Copy both files to the remote server
+                        scp docker-master-setup.yaml $SSH_TARGET:/tmp/docker-master-setup.yaml
+                        scp mevan-master-setup.yaml $SSH_TARGET:/tmp/mevan-master-setup.yaml
+
+                        # Execute both playbooks on the server
+                        ssh -o StrictHostKeyChecking=no $SSH_TARGET "ansible-playbook /tmp/docker-master-setup.yaml --connection=local"
+                        ssh -o StrictHostKeyChecking=no $SSH_TARGET "ansible-playbook /tmp/mevan-master-setup.yaml --connection=local"
                         '''
                     }
                 }
             }
         }
+
 
         stage('Docker Build & Push') {
             steps {
