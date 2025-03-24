@@ -12,7 +12,7 @@ pipeline {
 
     tools {
         maven 'Maven 3.9.9'
-      
+
     }
 
     stages {
@@ -66,7 +66,7 @@ pipeline {
                         sh '''
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                         # Build the React frontend Docker image
-                        docker build -t $REACT_APP_IMAGE -f frontend/Dockerfile The-Home-Services-Booking-System/frontend
+                        docker build -t $REACT_APP_IMAGE -f frontend/Dockerfile frontend
                         # Push the Docker image to DockerHub
                         docker push $REACT_APP_IMAGE
                         docker logout
