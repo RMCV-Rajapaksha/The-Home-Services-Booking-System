@@ -12,7 +12,7 @@ pipeline {
 
     tools {
         maven 'Maven 3.9.9'
-        nodejs 'NodeJS 16'  // Assuming NodeJS is available for React build
+      
     }
 
     stages {
@@ -42,18 +42,7 @@ pipeline {
             }
         }
 
-        stage('Build Frontend Application') {
-            steps {
-                script {
-                    // Navigate to React app directory and build the React app
-                    sh '''
-                    cd The-Home-Services-Booking-System/frontend
-                    npm install
-                    npm run build
-                    '''
-                }
-            }
-        }
+
 
         stage('Build & Push Backend Docker Image') {
             steps {
