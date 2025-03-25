@@ -106,7 +106,7 @@ pipeline {
                         docker pull $REACT_APP_IMAGE
                         docker ps -q --filter "name=react-frontend" | grep -q . && docker stop react-frontend || true
                         docker ps -aq --filter "name=react-frontend" | grep -q . && docker rm react-frontend || true
-                        docker run -d --restart always --name react-frontend -p 81:80 $REACT_APP_IMAGE
+                        docker run -d --restart always --name react-frontend -p 3000:80 $REACT_APP_IMAGE
                         docker logout
                         '''
                     }
