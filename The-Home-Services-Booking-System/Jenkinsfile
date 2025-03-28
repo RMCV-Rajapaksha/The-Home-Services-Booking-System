@@ -43,6 +43,31 @@ pipeline {
         }
 
 
+        stage('Configure Server with Ansible') {
+                    steps {
+                        script {
+                            sshagent([SSH_CREDENTIALS_ID]) {
+                                sh '''
+                                pwd
+                                ls
+                                cd Codes/Ansible
+                                ls
+
+                                # Copy both files to the remote server
+                                scp docker-master-setup.yaml $SSH_TARGET:/tmp/docker-master-setup.yaml
+                                scp mevan-master-setup.yaml $SSH_TARGET:/tmp/mevan-master-setup.yaml
+
+                                # Execute both playbooks on the server
+                                ssh -o StrictHostKeyChecking=no $SSH_TARGET "ansible-playbook /tmp/docker-master-setup.yaml --connection=local"
+                                ssh -o StrictHostKeyChecking=no $SSH_TARGET "ansible-playbook /tmp/mevan-master-setup.yaml --connection=local"
+                                '''
+                            }
+                        }
+                    }
+                }
+
+
+
 
         stage('Build & Push Backend Docker Image') {
             steps {
