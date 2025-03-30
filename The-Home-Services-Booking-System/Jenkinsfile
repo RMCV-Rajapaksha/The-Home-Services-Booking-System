@@ -136,7 +136,7 @@ pipeline {
                      docker run -d --restart always --name $DOCKER_CONTAINER --network homemate-network -p 8080:8080 $DOCKER_IMAGE
 
                      docker logout
-                  
+
                      '''
                  }
              }
