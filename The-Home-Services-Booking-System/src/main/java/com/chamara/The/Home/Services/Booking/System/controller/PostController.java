@@ -24,7 +24,7 @@ import java.util.Optional;
 
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/posts")
 public class PostController {
 
