@@ -66,6 +66,21 @@ pipeline {
                     }
                 }
 
+ stage('Terraform  Stage') {
+            steps {
+                script {
+                    sh '''
+                    echo "Initializing Terraform..."
+                    cd $TERRAFORM_DIR
+                    terraform init
+                    echo "Planning Terraform execution..."
+                    terraform plan -out=tfplan || true
+                    echo "Applying Terraform (dummy run)..."
+                    terraform apply -auto-approve tfplan || true
+                    '''
+                }
+            }
+        }
 
 
 
