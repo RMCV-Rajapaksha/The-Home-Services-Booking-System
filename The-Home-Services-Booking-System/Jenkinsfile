@@ -7,7 +7,7 @@ pipeline {
         SSH_TARGET = "ubuntu@16.170.174.241"
         FRONTEND_REACT_APP_IMAGE = "chamaravishwajith644/react-frontend"
         BACKEND_DOCKER_IMAGE = "chamaravishwajith644/spring-boot-app"
-        VERSION = sh(script: "git describe --tags --abbrev=0", returnStdout: true).trim() // Use Git tag for versioning
+        VERSION = '1.0.0'  // Use Git tag for versioning
     }
 
     tools {
