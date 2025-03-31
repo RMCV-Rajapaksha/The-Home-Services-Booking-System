@@ -83,7 +83,7 @@ const Service = () => {
   const fetchServices = async (pageNumber = 0) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://spring-boot-app:8080/api/posts?page=${pageNumber}&size=9&query=${searchTerm}&location=${location}`);
+      const response = await fetch(`https://app.devdex.online/api/posts?query=&location=&page=0`);
       const data = await response.json();
       setServices(data.content);
       setTotalPages(data.totalPages);
