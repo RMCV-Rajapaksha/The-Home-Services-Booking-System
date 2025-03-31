@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "chamaravishwajith644/spring-boot-app1:latest"
+        DOCKER_IMAGE = "chamaravishwajith644/spring-boot-app:latest"
         DOCKER_CREDENTIALS_ID = "dockerhub-credentials"
         SSH_CREDENTIALS_ID = "homemate-dev-server"
         SSH_TARGET = "ubuntu@16.170.174.241"
-        DOCKER_CONTAINER = "spring-boot-app1"
-        REACT_APP_IMAGE = "chamaravishwajith644/react-frontend1:latest"
+        DOCKER_CONTAINER = "spring-boot-app"
+        REACT_APP_IMAGE = "chamaravishwajith644/react-frontend:latest"
     }
 
     tools {
