@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "chamaravishwajith644/spring-boot-app:latest"
         DOCKER_CREDENTIALS_ID = "dockerhub-credentials"
         SSH_CREDENTIALS_ID = "homemate-dev-server"
         SSH_TARGET = "ubuntu@16.170.174.241"
-        DOCKER_CONTAINER = "spring-boot-app"
-        REACT_APP_IMAGE = "chamaravishwajith644/react-frontend:latest"
+        FRONTEND_REACT_APP_IMAGE = "chamaravishwajith644/react-frontend"
+        BACKEND_DOCKER_IMAGE = "chamaravishwajith644/spring-boot-app"
+        VERSION = sh(script: "git describe --tags --abbrev=0", returnStdout: true).trim() // Use Git tag for versioning
     }
 
     tools {
@@ -41,48 +41,14 @@ pipeline {
             }
         }
 
-        stage('Configure Server with Ansible') {
-            steps {
-                script {
-                    sshagent([SSH_CREDENTIALS_ID]) {
-                        sh '''
-                        pwd
-                        ls
-                        cd Codes/Ansible
-                        ls
-
-                        # Copy both files to the remote server
-                        scp docker-master-setup.yaml $SSH_TARGET:/tmp/docker-master-setup.yaml
-                        scp mevan-master-setup.yaml $SSH_TARGET:/tmp/mevan-master-setup.yaml
-
-                        # Execute both playbooks on the server
-                        ssh -o StrictHostKeyChecking=no $SSH_TARGET "ansible-playbook /tmp/docker-master-setup.yaml --connection=local"
-                        ssh -o StrictHostKeyChecking=no $SSH_TARGET "ansible-playbook /tmp/mevan-master-setup.yaml --connection=local"
-                        '''
-                    }
-                }
-            }
-        }
-
-        stage('Terraform Stage') {
-            steps {
-                script {
-                    sh '''
-                    echo "Initializing Terraform..."
-                    echo "Applying Terraform (dummy run)..."
-                    '''
-                }
-            }
-        }
-
         stage('Build & Push Backend Docker Image') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh '''
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker build -t $DOCKER_IMAGE -f The-Home-Services-Booking-System/Dockerfile The-Home-Services-Booking-System
-                        docker push $DOCKER_IMAGE
+                        docker build -t $BACKEND_DOCKER_IMAGE:$VERSION -f The-Home-Services-Booking-System/Dockerfile The-Home-Services-Booking-System
+                        docker push $BACKEND_DOCKER_IMAGE:$VERSION
                         docker logout
                         '''
                     }
@@ -96,10 +62,10 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh '''
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        # Build the React frontend Docker image with no-cache to force rebuild
-                        docker build --no-cache -t $REACT_APP_IMAGE -f frontend/Dockerfile frontend
-                        # Push the Docker image to DockerHub
-                        docker push $REACT_APP_IMAGE
+                        # Build the React frontend Docker image with version tagging
+                        docker build --no-cache -t $FRONTEND_REACT_APP_IMAGE:$VERSION -f frontend/Dockerfile frontend
+                        # Push the Docker image to DockerHub with version
+                        docker push $FRONTEND_REACT_APP_IMAGE:$VERSION
                         docker logout
                         '''
                     }
@@ -118,15 +84,15 @@ pipeline {
                         # Ensure the Docker network exists
                         docker network inspect homemate-network >/dev/null 2>&1 || docker network create homemate-network
 
-                        # Pull the latest image
-                        docker pull $DOCKER_IMAGE
+                        # Pull the latest versioned backend image
+                        docker pull $BACKEND_DOCKER_IMAGE:$VERSION
 
                         # Stop and remove existing container if running
-                        docker ps -q --filter "name=$DOCKER_CONTAINER" | grep -q . && docker stop $DOCKER_CONTAINER || true
-                        docker ps -aq --filter "name=$DOCKER_CONTAINER" | grep -q . && docker rm $DOCKER_CONTAINER || true
+                        docker ps -q --filter "name=spring-boot-app" | grep -q . && docker stop spring-boot-app || true
+                        docker ps -aq --filter "name=spring-boot-app" | grep -q . && docker rm spring-boot-app || true
 
-                        # Run the container within the network
-                        docker run -d --restart always --name $DOCKER_CONTAINER --network homemate-network -p 8080:8080 $DOCKER_IMAGE
+                        # Run the container with the versioned image
+                        docker run -d --restart always --name spring-boot-app --network homemate-network -p 8080:8080 $BACKEND_DOCKER_IMAGE:$VERSION
 
                         docker logout
                         '''
@@ -146,15 +112,15 @@ pipeline {
                         # Ensure the Docker network exists
                         docker network inspect homemate-network >/dev/null 2>&1 || docker network create homemate-network
 
-                        # Pull the latest React frontend image
-                        docker pull $REACT_APP_IMAGE
+                        # Pull the latest versioned frontend image
+                        docker pull $FRONTEND_REACT_APP_IMAGE:$VERSION
 
                         # Stop and remove any running instance of the frontend
                         docker ps -q --filter "name=react-frontend" | grep -q . && docker stop react-frontend || true
                         docker ps -aq --filter "name=react-frontend" | grep -q . && docker rm react-frontend || true
 
-                        # Run the container within the same network
-                        docker run --pull=always -d --restart always --name react-frontend --network homemate-network -p 3000:3000 $REACT_APP_IMAGE
+                        # Run the container with the versioned image
+                        docker run --pull=always -d --restart always --name react-frontend --network homemate-network -p 3000:3000 $FRONTEND_REACT_APP_IMAGE:$VERSION
 
                         docker logout
                         '''
@@ -168,10 +134,6 @@ pipeline {
     post {
         always {
             junit 'The-Home-Services-Booking-System/target/surefire-reports/TEST-*.xml'
-            plot csvFileName: 'test-duration.csv',
-                title: 'Test Execution Time',
-                group: 'Test Metrics',
-                style: 'line'
             cleanWs()
         }
 
@@ -179,42 +141,7 @@ pipeline {
             emailext(
                 to: 'sch.chamara@gmail.com',
                 subject: "✅ SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' Completed Successfully",
-                body: """
-                <html>
-                    <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; color: #333;">
-                        <div style="max-width: 800px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-                            <h2 style="color: green;">🎉 Build Successful! 🎉</h2>
-                            <p style="font-size: 16px;">The job <b>${env.JOB_NAME}</b> build <b>#${env.BUILD_NUMBER}</b> has completed successfully.</p>
-
-                            <h3 style="color: #4682B4;">🔹 Build Details</h3>
-                            <table border="1" cellspacing="0" cellpadding="8" style="border-collapse: collapse; width: 100%; margin-bottom: 20px;">
-                                <thead>
-                                    <tr style="background-color: #dff0d8; color: #3c763d;">
-                                        <th>Detail</th><th>Value</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td><b>Job Name</b></td><td>${env.JOB_NAME}</td></tr>
-                                    <tr><td><b>Build Number</b></td><td>${env.BUILD_NUMBER}</td></tr>
-                                    <tr><td><b>Build Status</b></td><td style="color: green;"><b>SUCCESS ✅</b></td></tr>
-                                    <tr><td><b>Duration</b></td><td>${currentBuild.durationString}</td></tr>
-                                    <tr><td><b>Build URL</b></td><td><a href="${env.BUILD_URL}" style="color: #007bff;">${env.BUILD_URL}</a></td></tr>
-                                </tbody>
-                            </table>
-
-                            <h3 style="color: #4682B4;">📊 Test Results</h3>
-                            <p style="font-size: 16px;">For detailed test reports, please check Jenkins.</p>
-
-                            <h4 style="color: #8A2BE2;">🚀 Deployment was successful!</h4>
-                            <p style="font-size: 16px;">Your application is now live and running smoothly!</p>
-
-                            <div style="text-align: center; margin-top: 30px;">
-                                <p style="font-size: 14px; color: #777;">Thank you for using our CI/CD pipeline. If you have any questions, feel free to reach out.</p>
-                            </div>
-                        </div>
-                    </body>
-                </html>
-                """,
+                body: "Build and deployment successful for version $VERSION.",
                 mimeType: 'text/html',
                 replyTo: 'sch.chamara@gmail.com',
                 from: 'sch.chamara@gmail.com'
@@ -225,42 +152,7 @@ pipeline {
             emailext(
                 to: 'sch.chamara@gmail.com',
                 subject: "❌ FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' Failed",
-                body: """
-                <html>
-                    <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; color: #333;">
-                        <div style="max-width: 800px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-                            <h2 style="color: red;">⚠️ Build Failed! ⚠️</h2>
-                            <p style="font-size: 16px;">The job <b>${env.JOB_NAME}</b> build <b>#${env.BUILD_NUMBER}</b> has failed.</p>
-
-                            <h3 style="color: #FF4500;">🔴 Build Details</h3>
-                            <table border="1" cellspacing="0" cellpadding="8" style="border-collapse: collapse; width: 100%; margin-bottom: 20px;">
-                                <thead>
-                                    <tr style="background-color: #f2dede; color: #a94442;">
-                                        <th>Detail</th><th>Value</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td><b>Job Name</b></td><td>${env.JOB_NAME}</td></tr>
-                                    <tr><td><b>Build Number</b></td><td>${env.BUILD_NUMBER}</td></tr>
-                                    <tr><td><b>Build Status</b></td><td style="color: red;"><b>FAILURE ❌</b></td></tr>
-                                    <tr><td><b>Duration</b></td><td>${currentBuild.durationString}</td></tr>
-                                    <tr><td><b>Build URL</b></td><td><a href="${env.BUILD_URL}" style="color: #007bff;">${env.BUILD_URL}</a></td></tr>
-                                </tbody>
-                            </table>
-
-                            <h3 style="color: #FF4500;">📊 Test Results</h3>
-                            <p style="font-size: 16px;">Please check Jenkins for detailed error logs.</p>
-
-                            <h4 style="color: #A52A2A;">🚨 Deployment Failed!</h4>
-                            <p style="font-size: 16px;">The deployment has failed. Please check Jenkins logs for further details.</p>
-
-                            <div style="text-align: center; margin-top: 30px;">
-                                <p style="font-size: 14px; color: #777;">Thank you for using our CI/CD pipeline. We are here to assist you.</p>
-                            </div>
-                        </div>
-                    </body>
-                </html>
-                """,
+                body: "Build and deployment failed for version $VERSION. Check Jenkins logs for details.",
                 mimeType: 'text/html',
                 replyTo: 'sch.chamara@gmail.com',
                 from: 'sch.chamara@gmail.com'
