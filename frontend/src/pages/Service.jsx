@@ -79,7 +79,7 @@ const Service = () => {
   const fetchServices = async (pageNumber = 0) => {
     setLoading(true);
     try {
-      const response = await fetch(`https://app.devdex.online/api/posts?query=&location=&page=0`);
+      const response = await fetch(`https://app.devdex.online/api/posts?query=${searchTerm}&location=${location}${category ? `&category=${category}` : ''}&page=${pageNumber}`);
       const data = await response.json();
       setServices(data.content);
       setTotalPages(data.totalPages);
