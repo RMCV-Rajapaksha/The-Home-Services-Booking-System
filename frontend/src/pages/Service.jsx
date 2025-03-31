@@ -65,8 +65,7 @@ const districts = [
 ];
 
 const categories = [
-  "Plumbing", "Electrical", "Carpentry", "Cleaning", "Painting",
-  "Gardening", "Moving", "Repair", "Installation", "Other"
+
 ];
 
 const Service = () => {
