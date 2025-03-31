@@ -123,9 +123,7 @@ pipeline {
                      ssh -T -o StrictHostKeyChecking=no $SSH_TARGET <<EOF
                      set -xe  # Enables debugging
 
-                     # Stop and remove existing container if running
-                     docker ps -q --filter "name=$DOCKER_CONTAINER" | grep -q . && docker stop $DOCKER_CONTAINER || true
-                     docker ps -aq --filter "name=$DOCKER_CONTAINER" | grep -q . && docker rm $DOCKER_CONTAINER || true
+
 
                      # Ensure the Docker network exists
                      docker network inspect homemate-network >/dev/null 2>&1 || docker network create homemate-network
@@ -134,9 +132,12 @@ pipeline {
                      docker pull $DOCKER_IMAGE
 
 
+                    # Stop and remove any running instance of react-frontend
+                    docker ps -q --filter "name=react-frontend" | grep -q . && docker stop react-frontend || true
+                    docker ps -aq --filter "name=react-frontend" | grep -q . && docker rm react-frontend || true
 
-                     # Run the container within the network
-                     docker run --pull=always -d --restart always --name react-frontend --network homemate-network -p 3000:3000 $REACT_APP_IMAGE
+                    # Run the new container
+                    docker run --pull=always -d --restart always --name react-frontend --network homemate-network -p 3000:3000 $REACT_APP_IMAGE
 
 
                      docker logout
