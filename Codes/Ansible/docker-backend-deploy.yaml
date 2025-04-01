@@ -16,3 +16,4 @@
 
     - name: Run backend container
       command: docker run -d --restart always --name {{ DOCKER_CONTAINER }} --network homemate-network -p 8080:8080 {{ DOCKER_IMAGE }}
+
