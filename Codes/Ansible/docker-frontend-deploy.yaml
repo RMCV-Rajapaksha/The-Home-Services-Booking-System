@@ -1,9 +1,14 @@
----
 - name: Deploy Frontend Application
   hosts: localhost
   tasks:
     - name: Ensure Docker network exists
-      command: docker network inspect homemate-network >/dev/null 2>&1 || docker network create homemate-network
+      shell: |
+        docker network inspect homemate-network >/dev/null 2>&1
+      ignore_errors: yes
+
+    - name: Create Docker network if it does not exist
+      command: docker network create homemate-network
+      when: ansible_facts['docker_networks']['homemate-network'] is not defined
 
     - name: Pull the latest Docker image for Frontend
       command: docker pull {{ REACT_APP_IMAGE }}
