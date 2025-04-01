@@ -18,29 +18,29 @@
       fail: 
         msg: "Docker is not installed or not functioning properly"
       when: docker_version_check.rc != 0
-      
+          
     - name: Check if Docker network exists
       shell: docker network inspect {{ DOCKER_NETWORK }} 2>/dev/null || echo "Network not found"
       register: network_check
       changed_when: false
-      
+          
     - name: Create Docker network if it does not exist
       shell: docker network create {{ DOCKER_NETWORK }}
       when: network_check.stdout.find('Network not found') != -1
-      
+          
     - name: Pull the latest Docker image for Backend
       shell: docker pull {{ DOCKER_IMAGE }}
       register: pull_result
       changed_when: pull_result.stdout.find('Downloaded newer image') != -1 or pull_result.stdout.find('Image is up to date') != -1
-      
+          
     - name: Stop any running instance of the backend container
       shell: docker stop {{ DOCKER_CONTAINER }} || true
       ignore_errors: yes
-      
+          
     - name: Remove old backend container
       shell: docker rm {{ DOCKER_CONTAINER }} || true
       ignore_errors: yes
-      
+          
     - name: Run backend container
       shell: >
         docker run -d 
@@ -50,19 +50,19 @@
         -p {{ HOST_PORT }}:{{ CONTAINER_PORT }} 
         {{ DOCKER_IMAGE }}
       register: container_start
-      
+          
     - name: Verify container is running
-      shell: docker ps -f "name={{ DOCKER_CONTAINER }}" --format "{{.Status}}" | grep Up
+      shell: docker ps -f "name={{ DOCKER_CONTAINER }}" --format "{{.Status}}" | grep Up || echo "Container not running"
       register: container_status
       ignore_errors: yes
       changed_when: false
-      
+          
     - name: Show container status
       debug:
         msg: "Container status: {{ container_status.stdout }}"
-      when: container_status.rc == 0
-      
+      when: container_status.stdout is search("Up")
+          
     - name: Show error if container failed to start
       debug:
         msg: "WARNING: Container failed to start properly. Check Docker logs."
-      when: container_status.rc != 0
+      when: container_status.stdout is not search("Up")
