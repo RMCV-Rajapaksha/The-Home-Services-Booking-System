@@ -112,14 +112,14 @@ pipeline {
                 title: 'Test Execution Time',
                 group: 'Test Metrics',
                 style: 'line',
-                yAxis: 'Time (ms)'
+                yaxis: 'Time (ms)'
 
             // Plot Graph for Pipeline Execution Time
             plot csvFileName: 'stage-duration.csv',
                 title: 'Pipeline Execution Time per Stage',
                 group: 'Pipeline Metrics',
                 style: 'bar',
-                yAxis: 'Time (ms)'
+                yaxis: 'Time (ms)'
 
             cleanWs()
         }
