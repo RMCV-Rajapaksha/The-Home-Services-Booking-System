@@ -68,16 +68,17 @@ pipeline {
        stage('Terraform Init and Apply') {
            steps {
                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
-                                    credentialsId: TERRAFORM_USER,
+                                 credentialsId: 'TERRAFORM_USER',
                                  accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                                  secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                   dir('Codes/Teraform') {
-                       sh 'terraform init'
-                       sh 'terraform apply -auto-approve -var="instance_id=i-08c3cae53b55b50ef"'
+                   dir('Codes/Terraform') {
+                       sh 'terraform init'  // Initialize Terraform
+                       sh 'terraform apply -auto-approve'  // Apply the configuration to query the EC2 instance
                    }
                }
            }
        }
+
 
 
         stage('Build & Push Backend Docker Image') {
