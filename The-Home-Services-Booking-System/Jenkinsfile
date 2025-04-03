@@ -71,10 +71,11 @@ pipeline {
                                                  usernameVariable: 'AWS_ACCESS_KEY_ID',
                                                  passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                    script {
-                       dir('Codes/Terraform') {
-                           sh 'terraform init'
-                           sh 'terraform apply -auto-approve'
-                       }
+                     sh '''
+                      cd Codes/Terraform
+                           terraform init
+                           terraform apply -auto-approve
+                       '''
                    }
                }
            }
