@@ -67,17 +67,19 @@ pipeline {
 
        stage('Terraform Init and Apply') {
            steps {
-               withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
-                                 credentialsId: 'TERRAFORM_USER',
-                                 accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                                 secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                   dir('Codes/Terraform') {
-                       sh 'terraform init'  // Initialize Terraform
-                       sh 'terraform apply -auto-approve'  // Apply the configuration to query the EC2 instance
+               withCredentials([usernamePassword(credentialsId: 'TERRAFORM_USER',
+                                                 usernameVariable: 'AWS_ACCESS_KEY_ID',
+                                                 passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                   script {
+                       dir('Codes/Terraform') {
+                           sh 'terraform init'
+                           sh 'terraform apply -auto-approve'
+                       }
                    }
                }
            }
        }
+
 
 
 
