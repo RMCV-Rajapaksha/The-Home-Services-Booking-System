@@ -1,17 +1,11 @@
-# Configure the AWS Provider for eu-north-1 region
-provider "aws" {
-  region = "eu-north-1"
-}
-
 # Fetch existing EC2 instance by ID
 data "aws_instance" "dev_server" {
   instance_id = "i-08c3cae53b55b50ef"
 }
 
-# Fetch security group details for VPC security groups
-data "aws_security_group" "instance_sg" {
-  count = length(data.aws_instance.dev_server.vpc_security_group_ids)
-  id    = data.aws_instance.dev_server.vpc_security_group_ids[count.index]
+# Fetch subnet details to get the VPC ID
+data "aws_subnet" "instance_subnet" {
+  id = data.aws_instance.dev_server.subnet_id
 }
 
 # Output instance details
@@ -44,7 +38,7 @@ output "instance_subnet_id" {
 }
 
 output "instance_vpc_id" {
-  value = data.aws_instance.dev_server.vpc_id
+  value = data.aws_subnet.instance_subnet.vpc_id
 }
 
 output "instance_availability_zone" {
