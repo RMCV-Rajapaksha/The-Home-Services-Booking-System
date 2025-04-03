@@ -8,6 +8,11 @@ data "aws_instance" "dev_server" {
   instance_id = "i-08c3cae53b55b50ef"
 }
 
+# Fetch subnet details to get the VPC ID
+data "aws_subnet" "instance_subnet" {
+  id = data.aws_instance.dev_server.subnet_id
+}
+
 # Fetch security group details for VPC security groups
 data "aws_security_group" "instance_sg" {
   count = length(data.aws_instance.dev_server.vpc_security_group_ids)
@@ -43,8 +48,9 @@ output "instance_subnet_id" {
   value = data.aws_instance.dev_server.subnet_id
 }
 
+# Fix: Fetch the VPC ID from the subnet instead of aws_instance
 output "instance_vpc_id" {
-  value = data.aws_instance.dev_server.vpc_id
+  value = data.aws_subnet.instance_subnet.vpc_id
 }
 
 output "instance_availability_zone" {
