@@ -8,6 +8,7 @@ pipeline {
         SSH_TARGET = "ubuntu@16.170.174.241"
         DOCKER_CONTAINER = "spring-boot-app"
         REACT_APP_IMAGE = "chamaravishwajith644/react-frontend:latest"
+        TERRAFORM_USER = "Terraform-User-Jenkins"
     }
 
     tools {
@@ -64,36 +65,19 @@ pipeline {
             }
         }
 
-        stage('Terraform Stage') {
-            steps {
-                script {
-                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CREDENTIALS_ID}", keyFileVariable: 'SSH_KEY')]) {
-                        sh '''
-                        # Navigate to directory containing serverPorts.tf if needed
-                        cd Codes/Teraform
-
-                        # Initialize Terraform
-                        terraform init
-
-                        # Apply Terraform configuration (this is read-only since you're using data sources)
-                        terraform apply -auto-approve
-
-                        # Display formatted output
-                        echo "========== EC2 INSTANCE DETAILS =========="
-                        terraform output instance_id
-                        terraform output instance_name
-                        terraform output instance_type
-                        terraform output instance_public_dns
-                        terraform output instance_public_ip
-                        terraform output instance_private_ip
-
-                        echo "========== SECURITY GROUP DETAILS =========="
-                        terraform output security_group_details
-                        '''
-                    }
-                }
-            }
-        }
+       stage('Terraform Init and Apply') {
+           steps {
+               withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+                                 credentialsId: 'aws-credentials',
+                                 accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                                 secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                   dir('Codes/Teraform') {
+                       sh 'terraform init'
+                       sh 'terraform apply -auto-approve -var="instance_id=i-08c3cae53b55b50ef"'
+                   }
+               }
+           }
+       }
 
 
         stage('Build & Push Backend Docker Image') {
