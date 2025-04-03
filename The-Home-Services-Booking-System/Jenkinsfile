@@ -98,7 +98,7 @@ pipeline {
                  }
              }
          }
-
+    }
 
 
         stage('Build & Push Backend Docker Image') {
