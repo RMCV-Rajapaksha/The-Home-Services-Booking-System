@@ -8,6 +8,12 @@ data "aws_subnet" "instance_subnet" {
   id = data.aws_instance.dev_server.subnet_id
 }
 
+# Fetch security group details for the instance
+data "aws_security_group" "instance_sg" {
+  count = length(data.aws_instance.dev_server.vpc_security_group_ids)
+  id    = data.aws_instance.dev_server.vpc_security_group_ids[count.index]
+}
+
 # Output instance details
 output "instance_id" {
   value = data.aws_instance.dev_server.id
