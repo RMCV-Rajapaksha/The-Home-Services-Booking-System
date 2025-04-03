@@ -1,3 +1,10 @@
+# Configure the AWS provider with explicit credentials and region
+provider "aws" {
+  region  = "eu-north-1"
+  access_key = var.aws_access_key_id
+  secret_key = var.aws_secret_access_key
+}
+
 # Fetch existing EC2 instance by ID
 data "aws_instance" "dev_server" {
   instance_id = "i-08c3cae53b55b50ef"
