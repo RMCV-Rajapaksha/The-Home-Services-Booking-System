@@ -7,14 +7,6 @@ data "aws_instance" "dev_server" {
   instance_id = "i-08c3cae53b55b50ef"  # The dev-server instance ID
 }
 
-# Get information about the security groups attached to the instance
-data "aws_security_groups" "instance_sgs" {
-  filter {
-    name   = "instance-id"
-    values = [data.aws_instance.dev_server.id]
-  }
-}
-
 # Outputs for viewing instance details
 output "instance_id" {
   value = data.aws_instance.dev_server.id
