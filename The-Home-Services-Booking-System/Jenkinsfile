@@ -68,7 +68,7 @@ pipeline {
        stage('Terraform Init and Apply') {
            steps {
                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
-                                 credentialsId: 'aws-credentials',
+                                    credentialsId: TERRAFORM_USER,
                                  accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                                  secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                    dir('Codes/Teraform') {
