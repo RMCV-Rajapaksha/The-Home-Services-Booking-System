@@ -37,14 +37,14 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          <div>
+          {/* <div>
             <h3 className="mb-4 text-xl font-bold">Contact Us</h3>
             <ul className="space-y-2 text-gray-300">
               <li>Email: contact@homeservices.com</li>
               <li>Phone: (123) 456-7890</li>
               <li>Address: 123 Service Street</li>
             </ul>
-          </div>
+          </div> */}
         </div>
         <div className="pt-8 mt-8 text-center text-gray-300 border-t border-gray-700">
           <p>&copy; {new Date().getFullYear()} HomeServices. All rights reserved.</p>
