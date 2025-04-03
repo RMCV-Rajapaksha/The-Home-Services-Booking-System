@@ -67,7 +67,7 @@ pipeline {
 
        stage('Terraform Init and Apply') {
            steps {
-               withCredentials([usernamePassword(credentialsId: 'TERRAFORM_USER',
+               withCredentials([usernamePassword(credentialsId: TERRAFORM_USER,
                                                  usernameVariable: 'AWS_ACCESS_KEY_ID',
                                                  passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                    script {
