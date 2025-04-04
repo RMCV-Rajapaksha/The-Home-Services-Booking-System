@@ -46,9 +46,9 @@ const Footer = () => {
             </ul>
           </div> */}
         </div>
-        <div className="pt-8 mt-8 text-center text-gray-300 border-t border-gray-700">
+        {/* <div className="pt-8 mt-8 text-center text-gray-300 border-t border-gray-700">
           <p>&copy; {new Date().getFullYear()} HomeServices. All rights reserved.</p>
-        </div>
+        </div> */}
       </div>
     </footer>
   );
